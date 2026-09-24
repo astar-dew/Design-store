@@ -1,0 +1,20 @@
+# 생성물 (스크립트로 언제든 다시 만듦)
+index.html
+gallery.html
+skins/
+patterns.html
+briefs/*/packet.html
+
+# 원본 스크린샷은 커밋하지 않는다 — add-ref.sh 가 WebP로 변환한 것만 남긴다
+references/**/*.png
+references/**/*.jpg
+references/**/*.jpeg
+references/**/*.heic
+references/_inbox/*
+!references/_inbox/README.md
+
+.DS_Store
+node_modules/
+
+.claude/
+.serena/

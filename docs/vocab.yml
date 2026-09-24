@@ -1,0 +1,134 @@
+# 태그 닫힌 어휘 (closed vocabulary)
+#
+# meta.md 의 frontmatter 값은 여기 정의된 것만 사용한다.
+# 새 값이 필요하면 여기 먼저 추가할 것. build-gallery.mjs 가 위반을 경고한다.
+# 각 값의 설명은 docs/01-design-taxonomy.md 참고.
+
+# --- 축 1: 비주얼 스타일 (배열) ---
+style:
+  - cobalt-gray         # 코발트 그레이 — 그레이스케일에 코발트 한 점
+  - black-yellow        # 블랙 옐로우 — 검정 위 노랑 하나. 강한 대비, 최소 라운드
+  - neon-engineering    # 네온 엔지니어링 — 계측기 HUD. 격자 배경과 발광 보더, 수치는 모노스페이스
+  - blueprint           # 블루프린트 — 제도 도면. 남색 바탕에 흰 선과 격자만
+  - oled-void           # OLED 보이드 — 순흑 배경에 발광 최소. 모바일·야간 우선
+  - ink-cream           # 잉크 크림 — 크림 종이 위 잉크. 세리프 헤드라인과 얇은 괘선
+  - sand-clay           # 샌드 클레이 — 흙빛 팔레트와 부드러운 덩어리감
+  - deep-forest         # 딥 포레스트 — 짙은 녹색에 골드 액센트. 묵직하고 신뢰감 있게
+  - navy-signal         # 네이비 시그널 — 네이비 바탕에 오렌지 시그널 하나
+  - mint-paper          # 민트 페이퍼 — 밝은 민트와 흰 여백. 청결하고 가볍게
+  - indigo-class        # 인디고 클래스 — 차분한 인디고에 넉넉한 여백. 진도와 완료가 주인공
+  - rose-lounge         # 로즈 라운지 — 따뜻한 로즈에 둥근 형태. 사람이 먼저 보이게
+  - civic-blue          # 시빅 블루 — 각진 형태에 두꺼운 선. 세련됨을 버리고 누구나 읽히게
+  - stark-mono          # 스타크 모노 — 순백과 순흑, 라운드 0. 색을 빼고 타이포로만 말한다
+
+# --- 축 2: 레이아웃 아키타입 (배열) ---
+layout:
+  - bento
+  - app-shell          # 사이드바 + 탑바 + 콘텐츠
+  - three-column       # 목록 → 하위목록 → 상세
+  - split              # 좌우 분할
+  - card-grid
+  - masonry
+  - feed               # 세로 단일 스트림
+  - canvas             # 줌/팬 무한 보드
+  - kanban
+  - dense-table
+  - scrollytelling     # 풀블리드 섹션 전개
+  - broken-grid        # 비대칭, 겹침
+  - sticky-side        # 한쪽 고정 + 한쪽 스크롤
+
+# --- 축 3: 페이지/화면 타입 (배열) ---
+page:
+  # 마케팅
+  - landing
+  - pricing
+  - case-study
+  - docs
+  # 진입
+  - auth
+  - onboarding
+  # 핵심 작업
+  - dashboard
+  - list
+  - list-detail
+  - detail
+  - form
+  - editor
+  - search
+  # 운영
+  - settings
+  - admin
+  - notifications
+  - checkout
+  # 상태 화면
+  - empty
+  - loading
+  - error
+
+# --- 축 4: 컴포넌트 패턴 (배열) ---
+components:
+  # 내비게이션
+  - topbar
+  - sidebar
+  - tabbar
+  - breadcrumb
+  - command-k
+  # 컨테이너
+  - card
+  - accordion
+  - tabs
+  # 오버레이
+  - modal
+  - drawer
+  - popover
+  - tooltip
+  - toast
+  - sheet
+  # 입력
+  - textfield
+  - combobox
+  - date-range
+  - upload
+  - inline-edit
+  - wizard
+  # 데이터
+  - data-table
+  - chart
+  - kpi-tile
+  - sparkline
+  # 피드백
+  - skeleton
+  - progress
+  - badge
+  - dialog
+  # AI
+  - ai-chat
+  - streaming
+  - citations
+
+# --- 축 5: 표현 레이어 (단일값) ---
+color:
+  - light-neutral
+  - dark-neutral
+  - dark-neon
+  - duotone
+  - high-contrast
+  - pastel
+  - earth
+  - brand-mono
+
+density:
+  - low
+  - medium
+  - high
+
+motion:
+  - none
+  - subtle             # 150~250ms, ease-out, 이동 8px 이내
+  - expressive         # 스프링, 패럴랙스, 페이지 트랜지션
+
+# --- 판정 (단일값) ---
+verdict:
+  - 좋음
+  - 참고만
+  - 반면교사
