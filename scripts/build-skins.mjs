@@ -12,6 +12,9 @@ import { LAYOUTS, LAYOUT_FOR, renderLayout, LAYOUTS_CSS, EXTRA_SPRITE } from '..
 import { SKIN_TIER, darkRate } from '../patterns/pricing.mjs'
 import { TOKENS_CSS } from './theme.mjs'
 import { footer, FOOTER_CSS, MAIL_JS } from '../patterns/contact.mjs'
+import {
+  MOTION_BASE_CSS, MOTION_BASE_JS, motionCss, motionJs, motionInfo, checkMotion,
+} from '../patterns/motion.mjs'
 
 const refs = loadRefs()
 const refsByStyle = id => refs.filter(r => [].concat(r.fm.style || []).includes(id))
@@ -121,6 +124,10 @@ const DEMO_CSS = `
 .fv-link:hover{text-decoration:underline}
 `
 
+// 모션 매핑이 빠졌거나 시그니처 대상이 레이아웃에서 사라졌으면 여기서 멈춘다
+const motionProblems = checkMotion(SKINS, LAYOUT_FOR, renderLayout)
+if (motionProblems.length) throw new Error('모션 매핑 오류\n  ' + motionProblems.join('\n  '))
+
 mkdirSync(join(REPO, 'skins'), { recursive: true })
 
 for (const s of SKINS) {
@@ -153,6 +160,7 @@ for (const s of SKINS) {
   const stage = renderLayout(layKey)
   const viewN = (stage.match(/class="fv-view"/g) || []).length
   const navWord = LAYOUTS[layKey].chrome === 'sidebar' ? '왼쪽 사이드바' : '상단 메뉴'
+  const mi = motionInfo(s.id)
 
   const html = `<!doctype html>
 <html lang="ko"><head><meta charset="utf-8">
@@ -180,6 +188,10 @@ body{margin:0;background:var(--bg);color:var(--fg);
 .stage-hint{margin:0 0 10px;font-size:12.5px;color:var(--dim)}
 .stage-hint b{color:var(--fg);font-weight:560}
 .stage-hint .narrow{display:none}
+.m-replay{font:inherit;font-size:12px;margin-left:8px;padding:2px 10px;border:1px solid var(--line);
+  border-radius:999px;background:var(--panel);color:var(--dim);cursor:pointer;vertical-align:1px}
+.m-replay:hover{color:var(--fg);border-color:var(--dim)}
+.m-replay:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .stage-wrap{border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
 /* 목업은 축소 대상이 아니라 도면에 가깝다.
    폭에 맞춰 줄이면 본문이 5px가 되어 아무것도 안 읽힌다 —
@@ -226,6 +238,8 @@ body{margin:0;background:var(--bg);color:var(--fg);
 ${PREVIEW_FULL_CSS}
 ${LAYOUTS_CSS}
 ${skinCss(s)}
+${MOTION_BASE_CSS}
+${motionCss(s.id)}
 ${DEMO_CSS}
 ${FOOTER_CSS}
 @media (max-width:900px){.info{grid-template-columns:1fr}.demo-grid{grid-template-columns:1fr 1fr}}
@@ -259,7 +273,8 @@ ${ICON_SPRITE}${EXTRA_SPRITE}
 
   <p class="stage-hint"><b>${navWord}</b>를 눌러보세요 — 이 분야의 화면 ${viewN}종이 실제로 전환됩니다.
     아래 컴포넌트는 호버·눌림·포커스·비활성이 동작합니다.
-    <span class="narrow">목업은 <b>가로로 밀어서</b> 보세요.</span></p>
+    <span class="narrow">목업은 <b>가로로 밀어서</b> 보세요.</span>
+    ${mi.still ? '' : '<button type="button" class="m-replay" id="m-replay">▶ 다시 보기</button>'}</p>
 
   <div class="stage-wrap sk-${s.id} mode-${s.base}" id="root">
     <div class="stage-scroll" tabindex="0" role="region"
@@ -274,6 +289,7 @@ ${ICON_SPRITE}${EXTRA_SPRITE}
       <dt>계보</dt><dd>${esc(s.lineage)}</dd>
       ${bench}
       <dt>어울리는 곳</dt><dd>${esc(s.fits)}</dd>
+      <dt>모션</dt><dd>${esc(mi.persona)} · 강도 ${esc(mi.levelLabel)} — <b>${esc(mi.sigName)}</b>: ${esc(mi.desc)}</dd>
       <dt class="w">주의</dt><dd class="w">${esc(s.watch)}</dd>
       <dt>단가 계수</dt><dd>×${tier.factor.toFixed(2)} — ${esc(tier.why)}</dd>
       <dt>다크 추가</dt><dd>${pct(darkRate(s.id))} · 라이트/다크 쌍으로 제공</dd>
@@ -337,6 +353,8 @@ function render(st){
   root.classList.toggle('mode-light', st.mode === 'light')
   modeBtns.forEach(b => b.setAttribute('aria-selected', b.dataset.mode === st.mode))
   cur = st
+  // 화면이 바뀔 때만 등장을 다시 튼다 — 라이트/다크 전환까지 재생하면 비교가 방해된다
+  if (st.view !== lastView) { lastView = st.view; play() }
 }
 
 function go(st){
@@ -345,6 +363,22 @@ function go(st){
   if (h === location.hash.slice(1)) render(st)
   else location.hash = h
 }
+
+/* ── 모션 — .fv 에 m-play 를 붙였다 떼서 등장과 시그니처를 다시 튼다 ── */
+${MOTION_BASE_JS}
+${motionJs(s.id)}
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+let lastView = null
+function play(){
+  fv.classList.remove('m-play')
+  void fv.offsetWidth           // 클래스를 떼고 바로 붙이면 브라우저가 재생을 건너뛴다
+  fv.classList.add('m-play')
+  M_PLAY(fv, reduced)
+}
+M_INIT(fv)
+// 반복 애니메이션(펄스)은 화면 밖에서 멈춘다
+new IntersectionObserver(([e]) => fv.classList.toggle('m-off', !e.isIntersecting)).observe(fv)
+document.getElementById('m-replay')?.addEventListener('click', play)
 
 window.addEventListener('hashchange', () => render(parseHash()))
 navs.forEach(n => n.addEventListener('click', () => go({ view: n.dataset.v, mode: cur.mode })))
