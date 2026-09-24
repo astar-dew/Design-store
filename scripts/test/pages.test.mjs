@@ -27,3 +27,12 @@ test('초기화면에 탭 인디케이터와 공통 모션 CSS 가 있다', () =
   assert.ok(h.includes('.tab-ink{'), '탭 잉크 CSS')
   assert.ok(h.includes("classList.add('has-ink')"), '탭 잉크 JS')
 })
+
+test('스킨 카드 14장에 모션 강도가 붙고, 깔끔한 모션 필터가 있다', () => {
+  const h = read('index.html')
+  assert.equal((h.match(/ data-motion="(calm|mid|lively)"/g) || []).length, SKINS.length)
+  assert.equal((h.match(/class="sk-motion"/g) || []).length, SKINS.length)
+  assert.equal((h.match(/ data-motion="calm"/g) || []).length, 4)
+  assert.ok(/<button class="fchip fchip-calm"[^>]*data-calm/.test(h), '깔끔한 모션 칩')
+  assert.ok(h.includes('const skinVisible = function skinVisible'), '필터 함수가 페이지에 들어간다')
+})

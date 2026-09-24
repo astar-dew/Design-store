@@ -46,16 +46,20 @@ const skinCards = SKINS.map((s, i) => {
   const scene = SCENES[s.id]
   if (!scene) throw new Error(`씬 없음: ${s.id} — patterns/scenes.mjs 에 추가할 것`)
   const factor = SKIN_TIER[s.id]?.factor ?? 1
+  const mi = motionInfo(s.id)
   return `
   <article class="skin sk-${s.id} mode-${s.base}" data-i="${i}" data-id="${s.id}" data-base="${s.base}"
-           data-doms="${SKIN_DOMS[s.id].join(' ')}"
+           data-doms="${SKIN_DOMS[s.id].join(' ')}" data-motion="${mi.level}"
            tabindex="0" role="button" aria-label="${esc(s.name)} — ${esc(scene.domain)}, ${TONE[s.base]} 기본. 자세히 보기">
     <div class="pv-wrap"><div class="pv">${scene.html}</div></div>
     <div class="skin-meta">
       <div class="sk-eyebrow">
         <span class="sk-domain">${esc(scene.domain)}</span>
         ${refsByStyle(s.id).length ? `<span class="sk-refn">레퍼런스 ${refsByStyle(s.id).length}</span>` : ''}
-        <span class="sk-tone t-${s.base}">${TONE[s.base]}</span>
+        <span class="sk-badges">
+          <span class="sk-motion" title="모션 ${esc(mi.persona)} · ${esc(mi.sigName)}">모션 ${mi.levelLabel}</span>
+          <span class="sk-tone t-${s.base}">${TONE[s.base]}</span>
+        </span>
       </div>
       <h3>${esc(s.name)}</h3>
       <p>${esc(s.sub)}</p>
@@ -383,6 +387,14 @@ body{margin:0;background:var(--bg);color:var(--fg);
 .sk-tone{font-size:10.5px;padding:2px 8px;border-radius:999px;flex:none;line-height:1.5}
 .sk-tone.t-light{background:var(--chip);color:var(--dim);box-shadow:inset 0 0 0 1px var(--line)}
 .sk-tone.t-dark{background:#26241f;color:#f2f0ec}
+.sk-badges{display:flex;gap:5px;flex:none}
+.sk-motion{font-size:10.5px;padding:2px 8px;border-radius:999px;line-height:1.5;color:var(--dim);
+  box-shadow:inset 0 0 0 1px var(--line)}
+.fchip-calm{margin-left:10px}   /* 분야와 다른 축이라 한 칸 띄운다 */
+/* 스크롤 등장 — JS 가 m-reveal 을 달 때만. backwards 라 끝난 뒤 호버 transform 을 막지 않는다 */
+.skins.m-reveal .skin:not(.in){opacity:0}
+.skins.m-reveal .skin.in{animation:m-rise .5s cubic-bezier(.16,1,.3,1) backwards;
+  animation-delay:calc(var(--d, 0) * 40ms)}
 .skin-meta h3{font-size:16px;margin:0 0 3px;letter-spacing:-.015em}
 .skin-meta p{font-size:12.5px;color:var(--dim);margin:0 0 12px;line-height:1.5}
 .skin-meta code,.linked code,.cmd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
@@ -743,11 +755,14 @@ ${ICON_SPRITE}
       </div>
     </div>
     <div class="dz-bar">
-      <div class="fchips" role="group" aria-label="분야로 거르기">
+      <div class="fchips" role="group" aria-label="분야 · 모션으로 거르기">
         <button class="fchip" type="button" data-f="all" aria-pressed="true">전체 <b>${SKINS.length}</b></button>
         ${DOMAINS.map(d =>
     `<button class="fchip" type="button" data-f="${d.id}" data-name="${esc(d.name)}"
        aria-pressed="false">${esc(d.name)} <b>${domCount(d.id)}</b></button>`).join('')}
+        <button class="fchip fchip-calm" type="button" data-calm aria-pressed="false"
+          title="움직임이 거의 없는 스킨만 — 공공·B2B·에디토리얼처럼 차분해야 하는 곳"
+          >깔끔한 모션만 <b>${SKINS.filter(s => motionInfo(s.id).level === 'calm').length}</b></button>
       </div>
       <p class="dz-count" role="status">${SKINS.length}종 표시 중</p>
     </div>
@@ -913,23 +928,52 @@ document.querySelectorAll('.skin').forEach(c => {
   })
 })
 
-/* 디자인 탭 필터 — 수주 가이드의 분야(data-doms) 기준.
+/* 디자인 탭 필터 — 수주 가이드의 분야(data-doms) × "깔끔한 모션만"(data-motion).
    한 스킨이 여러 분야에 걸칠 수 있다. 위의 라이트/다크 스위치는 보기 방식만 바꾸므로 필터와 무관. */
 const skinCards = [...document.querySelectorAll('.skin')]
 const dzCount = document.querySelector('.dz-count')
-document.querySelectorAll('.fchip').forEach(chip => chip.addEventListener('click', () => {
-  const f = chip.dataset.f
-  document.querySelectorAll('.fchip').forEach(x => x.setAttribute('aria-pressed', x === chip))
+const domChips = [...document.querySelectorAll('.fchip[data-f]')]
+const calmChip = document.querySelector('.fchip[data-calm]')
+const skinVisible = ${skinVisible.toString()}
+let dz = 'all'
+function applySkinFilter(){
+  const calm = calmChip.getAttribute('aria-pressed') === 'true'
   let n = 0
   for (const c of skinCards) {
-    const on = f === 'all' || c.dataset.doms.split(' ').includes(f)
+    const on = skinVisible(c.dataset.doms.split(' '), c.dataset.motion, dz, calm)
     c.hidden = !on          // hidden 은 탭 순서에서도 빼준다
     if (on) n++
   }
-  dzCount.textContent = f === 'all'
+  const name = dz === 'all' ? '' : domChips.find(x => x.dataset.f === dz).dataset.name + ' 추천 '
+  dzCount.textContent = (dz === 'all' && !calm)
     ? n + '종 표시 중'
-    : chip.dataset.name + ' 추천 ' + n + '종'
+    : name + (calm ? '깔끔한 모션 ' : '') + n + '종' + (n ? '' : ' · 조건을 하나 풀어보세요')
+}
+domChips.forEach(chip => chip.addEventListener('click', () => {
+  dz = chip.dataset.f
+  domChips.forEach(x => x.setAttribute('aria-pressed', x === chip))
+  applySkinFilter()
 }))
+calmChip.addEventListener('click', () => {
+  calmChip.setAttribute('aria-pressed', calmChip.getAttribute('aria-pressed') !== 'true')
+  applySkinFilter()
+})
+
+/* 스크롤 등장 — 한 번에 보이는 카드끼리 40ms 씩 늦게, 최대 8장까지만 늦춘다.
+   숨은 탭의 카드는 교차하지 않다가 탭이 열려 보일 때 들어온다. */
+if (!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+  document.querySelector('.skins').classList.add('m-reveal')
+  const io = new IntersectionObserver(es => {
+    let d = 0
+    for (const e of es) {
+      if (!e.isIntersecting) continue
+      e.target.style.setProperty('--d', Math.min(d++, 8))
+      e.target.classList.add('in')
+      io.unobserve(e.target)
+    }
+  }, { rootMargin: '0px 0px -40px 0px' })
+  skinCards.forEach(c => io.observe(c))
+}
 
 /* 레퍼런스 — 필터 / 상세 시트 / 패턴에서 넘어오기 */
 const refCards = [...document.querySelectorAll('.ref')]
