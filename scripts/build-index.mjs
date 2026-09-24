@@ -24,6 +24,8 @@ const refsForTags = tags => refs.filter(r => {
   return tags.some(t => all.includes(t))
 })
 const pct = r => `+${Math.round(r * 100)}%`
+// 디자인 스킬 탭은 당분간 숨긴다. 데이터(skillbook.mjs)는 그대로 두고 true 로 바꾸면 돌아온다.
+const SHOW_SKILL = false
 
 /* ---------- 탭 1: 디자인 (스킨 카드) ---------- */
 // 카드 = 제품 사진. 프리뷰 위에 라벨을 얹지 않는다 —
@@ -708,7 +710,7 @@ ${ICON_SPRITE}
     <div class="brand"><h1>A-Dew, design-store</h1><span>디자인 레퍼런스 저장소</span></div>
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" data-p="design" aria-selected="true">디자인 <b>${SKINS.length}</b></button>
-      <button class="tab" role="tab" data-p="skill" aria-selected="false">디자인 스킬 <b>${SKILL_COUNT}</b></button>
+      ${SHOW_SKILL ? `<button class="tab" role="tab" data-p="skill" aria-selected="false">디자인 스킬 <b>${SKILL_COUNT}</b></button>` : ''}
       <button class="tab" role="tab" data-p="pattern" aria-selected="false">패턴 <b>${GROUPS.reduce((n, g) => n + g.variants.length, 0)}</b></button>
       <button class="tab" role="tab" data-p="ref" aria-selected="false">레퍼런스 <b>${refs.length}</b></button>
       <button class="tab" role="tab" data-p="intake" aria-selected="false">수주 가이드</button>
@@ -744,7 +746,7 @@ ${ICON_SPRITE}
     <div class="skins">${skinCards}</div>
   </section>
 
-  <section id="p-skill" role="tabpanel" hidden>
+  ${SHOW_SKILL ? `<section id="p-skill" role="tabpanel" hidden>
     <div class="panel-head">
       <div>
         <h2 class="panel-h">디자인 스킬 <span class="panel-sub">${SKILLBOOK.length}개 분야 · ${SKILL_COUNT}개 항목</span></h2>
@@ -773,7 +775,7 @@ ${ICON_SPRITE}
       <div class="ck-bar"><i id="ck-fill"></i></div>
       <div class="ck-grid">${checkGroups}</div>
     </section>
-  </section>
+  </section>` : ''}
 
   <section id="p-pattern" role="tabpanel" hidden>
     <div class="panel-head"><p class="panel-lede">스킨을 정했으면 형태를 고릅니다. 여기는 색·타이포를 뺀 <strong>구조</strong>만 다룹니다.
@@ -971,12 +973,14 @@ function ckSync(save){
 }
 const saved = store(() => JSON.parse(localStorage.getItem(CK_KEY) || '[]'), [])
 if (Array.isArray(saved)) for (const c of cks) c.checked = saved.includes(c.dataset.ck)
-cks.forEach(c => c.addEventListener('change', () => ckSync(true)))
-document.getElementById('ck-reset').addEventListener('click', () => {
-  cks.forEach(c => { c.checked = false })
-  ckSync(true)
-})
-ckSync(false)
+if (ckN) {  // 디자인 스킬 탭을 숨기면 체크리스트도 없다
+  cks.forEach(c => c.addEventListener('change', () => ckSync(true)))
+  document.getElementById('ck-reset').addEventListener('click', () => {
+    cks.forEach(c => { c.checked = false })
+    ckSync(true)
+  })
+  ckSync(false)
+}
 
 
 /* 견적 — pricing.mjs 의 quote() 와 같은 순서로 계산한다 */
