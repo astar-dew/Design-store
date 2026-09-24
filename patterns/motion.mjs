@@ -108,9 +108,10 @@ for (const b of fv.querySelectorAll('.fv-view:not([hidden]) .fv-kpi b')) {
 .lay-prog i{box-shadow:0 0 10px color-mix(in srgb,var(--s-acc) 70%,transparent)}`,
   },
   'signal-pulse': {
-    name: '시그널 펄스', desc: '선택된 메뉴의 숫자 배지 하나만 맥박처럼 퍼진다',
+    name: '시그널 펄스', desc: '메뉴의 숫자 배지 하나만 맥박처럼 퍼진다',
     targets: ['fv-cnt'],
-    css: `.fv-nav.is-on .fv-cnt{animation:m-pulse 2.2s ease-out infinite}`,
+    // 선택된 메뉴에 걸면 첫 화면(운영 보드)엔 배지가 없어 아무것도 안 보인다. 칸반 레이아웃에 배지는 하나뿐이다.
+    css: `.fv-cnt{animation:m-pulse 2.2s ease-out infinite}`,
   },
   'gold-sheen': {
     name: '골드 광택', desc: '총 자산 카드에 금빛 광택이 한 번 스친다',
@@ -178,6 +179,7 @@ export function countText(txt, p) {
   if (!m) return txt
   const end = parseFloat(m[0].replace(/,/g, ''))
   const dec = m[1] ? m[1].length - 1 : 0
+  p = Math.max(0, Math.min(1, p))   // rAF 타임스탬프가 클릭 시각보다 앞서면 p 가 음수가 된다
   const n = (end * p).toLocaleString('en-US', {
     minimumFractionDigits: dec, maximumFractionDigits: dec, useGrouping: m[0].includes(','),
   })

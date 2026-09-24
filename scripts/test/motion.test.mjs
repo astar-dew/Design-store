@@ -87,3 +87,18 @@ test('skinVisible — 분야와 모션 강도를 AND 로 건다', () => {
   assert.equal(skinVisible(['commerce', 'saas'], 'calm', 'saas', true), true)
   assert.equal(skinVisible(['commerce'], 'calm', 'saas', true), false)
 })
+
+test('countText — 재생 직후 p 가 음수여도 마이너스를 그리지 않는다', () => {
+  // rAF 타임스탬프가 클릭 시각보다 앞설 수 있다
+  assert.equal(countText('99.98%', -0.01), '0.00%')
+  assert.equal(countText('₩128,400,000', 1.2), '₩128,400,000')
+})
+
+test('시그널 펄스는 첫 화면에서 켜진다', () => {
+  const sel = SIGNATURES['signal-pulse'].css.split('{')[0]
+  const html = renderLayout(LAYOUT_FOR['navy-signal'])
+  // .is-on 에 걸었다면 첫 화면에서 켜진 메뉴 안에 숫자 배지가 있어야 한다
+  if (sel.includes('.is-on'))
+    assert.match(html, /class="fv-nav[^"]*is-on[^"]*"[^>]*>(?:(?!<\/button>)[\s\S])*fv-cnt/)
+  else assert.match(html, /class="fv-cnt"/)
+})
