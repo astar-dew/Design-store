@@ -15,6 +15,7 @@ import { SCREENS, SKIN_TIER, OPTIONS, DARK, TERMS, BASIS, darkRate, fmt } from '
 import { SKILLBOOK, LEVELS, CHECKLIST, SKILL_COUNT, CHECK_COUNT } from '../patterns/skillbook.mjs'
 import { TOKENS_CSS } from './theme.mjs'
 import { CONTACT, hasMail, footer, FOOTER_CSS, MAIL_JS } from '../patterns/contact.mjs'
+import { MOTION_BASE_CSS, motionCss, motionInfo, skinVisible } from '../patterns/motion.mjs'
 
 const refs = loadRefs()
 const refProblems = lint(refs, loadVocab())
@@ -329,7 +330,12 @@ body{margin:0;background:var(--bg);color:var(--fg);
 .brand{display:flex;align-items:baseline;gap:10px;margin-bottom:16px}
 .brand h1{font-size:19px;margin:0;letter-spacing:-.015em}
 .brand span{font-size:13px;color:var(--dim)}
-.tabs{display:flex;gap:2px}
+.tabs{display:flex;gap:2px;position:relative}   /* 잉크가 가로 스크롤과 같이 움직이도록 기준을 여기에 */
+/* 밑줄 하나가 선택 탭으로 미끄러진다. 폭은 scaleX 로 — width 를 애니메이션하면 매 프레임 레이아웃을 다시 잰다 */
+.tab-ink{position:absolute;left:0;bottom:-1px;width:1px;height:2px;background:var(--fg);
+  transform-origin:left;transition:transform .28s cubic-bezier(.2,.7,.3,1);pointer-events:none}
+.tabs.has-ink .tab[aria-selected="true"]{border-bottom-color:transparent}
+[role="tabpanel"].p-in{animation:m-fade .18s ease-out}
 .tab{font:inherit;font-size:14px;background:none;border:none;color:var(--dim);cursor:pointer;
   padding:8px 14px;border-bottom:2px solid transparent;margin-bottom:-1px;transition:.12s;
   flex:none;white-space:nowrap}   /* 좁아지면 줄여서 쪼개지 말고 가로로 스크롤한다 */
@@ -679,6 +685,8 @@ ${SCENES_CSS}
 ${SCENES_EXTRA_CSS}
 ${PREVIEW_FULL_CSS}
 ${SKINS.map(skinCss).join('\n')}
+${MOTION_BASE_CSS}
+${SKINS.map(s => motionCss(s.id)).join('\n')}
 ${WIRE_CSS}
 @media (max-width:900px){
   .quote,.dom-grid,.sb-grid{grid-template-columns:1fr}
@@ -842,13 +850,31 @@ ${refSheets}
 const DATA = ${CLIENT_DATA}
 ${MAIL_JS}
 
-/* 탭 */
+/* 탭 — JS 가 돌 때만 잉크를 단다. 안 돌면 기존 border 밑줄이 그대로 보인다 */
 const tabs = [...document.querySelectorAll('.tab')]
+const tabBar = document.querySelector('.tabs')
+const ink = document.createElement('i')
+ink.className = 'tab-ink'
+ink.setAttribute('aria-hidden', 'true')
+tabBar.append(ink)
+tabBar.classList.add('has-ink')
+function placeInk(){
+  const t = tabs.find(x => x.getAttribute('aria-selected') === 'true')
+  if (t) ink.style.transform = 'translateX(' + t.offsetLeft + 'px) scaleX(' + t.offsetWidth + ')'
+}
 function show(p){
   tabs.forEach(t => t.setAttribute('aria-selected', t.dataset.p === p))
   for (const t of tabs) document.getElementById('p-' + t.dataset.p).hidden = t.dataset.p !== p
+  const panel = document.getElementById('p-' + p)
+  panel.classList.remove('p-in'); void panel.offsetWidth; panel.classList.add('p-in')
+  placeInk()
   history.replaceState(null, '', '#' + p)
 }
+// 첫 자리는 미끄러지지 않고 바로 놓는다
+ink.style.transition = 'none'
+placeInk()
+requestAnimationFrame(() => { ink.style.transition = '' })
+addEventListener('resize', placeInk)
 tabs.forEach(t => t.addEventListener('click', () => show(t.dataset.p)))
 if (tabs.some(t => t.dataset.p === location.hash.slice(1))) show(location.hash.slice(1))
 

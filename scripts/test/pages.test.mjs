@@ -20,3 +20,10 @@ test('스킨 페이지마다 모션 CSS · JS · 설명이 들어간다', () => 
     assert.equal(h.includes('id="m-replay"'), !MOTION_FOR[s.id].still, `${s.id}: 다시 보기`)
   }
 })
+
+test('초기화면에 탭 인디케이터와 공통 모션 CSS 가 있다', () => {
+  const h = read('index.html')
+  assert.ok(h.includes('@keyframes m-fade{'), '공통 keyframes')
+  assert.ok(h.includes('.tab-ink{'), '탭 잉크 CSS')
+  assert.ok(h.includes("classList.add('has-ink')"), '탭 잉크 JS')
+})
