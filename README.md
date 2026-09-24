@@ -122,6 +122,7 @@ patterns/scenes.mjs         # 카드 프리뷰 씬 — 스킨별 분야 화면 �
 patterns/domains.mjs        # 분야 가이드 — 질문·레이아웃·스킨·화면 매핑 (수주 가이드 탭)
 patterns/layouts.mjs        # 도메인별 풀 레이아웃 10종 (스킨 전용 페이지 본체)
 patterns/skillbook.mjs      # 디자인 품질 기준 + 납품 검수 체크리스트 (디자인 스킬 탭)
+patterns/motion.mjs         # 모션 성격 5종 · 시그니처 14종 · 스킨 매핑 (스킨 페이지와 카드가 쓴다)
 patterns/pricing.mjs        # 화면 단가·스킨 계수·옵션 비율 (견적 탭)
 patterns/patterns.mjs       # 기본 패턴 카탈로그 데이터 (패턴 탭)
 references/
@@ -140,7 +141,8 @@ scripts/
 | `scripts/add-ref.sh <slug> [이미지...]` | 폴더 생성 + WebP 변환(최대폭 1440px, q75) + `meta.md` 템플릿 |
 | `scripts/add-ref.sh <slug> --inbox` | `_inbox` 안의 이미지를 전부 이 레퍼런스로 등록 |
 | `scripts/check-contrast.mjs` | 스킨 토큰 대비 검사 — **미달이면 빌드가 멈춘다** |
-| `scripts/build.sh` | 대비 검사 후 아래를 전부 다시 빌드 |
+| `scripts/build.sh` | 대비 검사 → 아래를 전부 다시 빌드 → `node --test` (실패하면 배포도 멈춘다) |
+| `scripts/check-pages.sh` | 로컬 Chrome 으로 열어 모션 JS 가 끝까지 도는지 · 모션 줄이기에서 멀쩡한지 확인 |
 | `scripts/build-index.mjs` | → `index.html` (초기화면, 5개 탭) |
 | `scripts/build-patterns.mjs` | → `patterns.html` (기본 패턴 카탈로그 단독) |
 | `scripts/build-skins.mjs` | → `skins/<id>.html` (스킨 전용 페이지 — 화면 전환 + 상태 데모) |
