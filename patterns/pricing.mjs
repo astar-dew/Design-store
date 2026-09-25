@@ -62,7 +62,7 @@ export const SKIN_TIER = {
   'blueprint': { factor: 1.20, why: '선 굵기 3단 체계를 전 컴포넌트에 일관 적용' },
   'oled-void': { factor: 1.10, why: '발광 튜닝과 순흑 잔상 대응' },
   'ink-cream': { factor: 1.15, why: '한글 부리 헤드라인 조판과 웹폰트 대체 상태까지 챙겨야 함' },
-  'sand-clay': { factor: 1.20, why: '이중 섀도우 튜닝, 라운드 규칙 재설계' },
+  'sand-clay': { factor: 1.20, why: '정물 일러스트·도장·이중 괘선 등 인쇄물 장식을 화면마다 절제해 배치' },
   'deep-forest': { factor: 1.15, why: '골드 액센트의 대비 확보가 화면마다 필요' },
   'navy-signal': { factor: 1.05, why: '표준 구조에 액센트 규칙만 얹음' },
   'mint-paper': { factor: 1.05, why: '밝은 톤이라 상태색 대비를 따로 잡아야 함' },

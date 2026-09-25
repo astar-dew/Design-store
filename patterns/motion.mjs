@@ -126,12 +126,12 @@ for (const b of fv.querySelectorAll('.fv-view:not([hidden]) .fv-kpi b')) {
   background:linear-gradient(100deg,transparent 35%,color-mix(in srgb,var(--s-acc) 28%,transparent) 50%,transparent 65%);
   animation:m-sheen 1200ms var(--m-ease) 350ms both}`,
   },
-  'press': {
-    name: '눌림', desc: '버튼과 상품 카드를 누르면 쑥 들어가고 그림자가 안으로 말린다',
-    targets: ['fv-btn', 'lay-prod'],
-    css: `.fv-btn,.lay-prod,.db{transition:transform var(--m-dur) var(--m-ease),box-shadow var(--m-dur) var(--m-ease)}
-.lay-prod{cursor:pointer}
-.fv-btn:active,.lay-prod:active,.db:active:not(:disabled){transform:scale(.96);box-shadow:inset 0 2px 8px rgba(60,40,20,.22)}`,
+  'stamp': {
+    name: '도장 찍힘', desc: 'NEW·할인 도장이 크게 들렸다가 종이에 쿵 찍힌다. 담기 버튼은 누르면 한 단 내려앉는다',
+    targets: ['lay-new'],
+    css: `.m-play .lay-new,.m-play .lay-off{animation:m-stamp 520ms cubic-bezier(.2,.8,.2,1) 380ms both}
+.lay-cart{transition:transform var(--m-dur) var(--m-ease),background-color var(--m-dur),color var(--m-dur)}
+.lay-cart:active{transform:translateY(2px)}`,
   },
   'float': {
     name: '떠오름', desc: '카드에 올리면 가볍게 떠오른다',
@@ -172,7 +172,7 @@ export const MOTION_FOR = {
   'oled-void': { persona: 'glow', sig: 'glow' },
   'navy-signal': { persona: 'glow', sig: 'signal-pulse' },
   'deep-forest': { persona: 'weighty', sig: 'gold-sheen' },
-  'sand-clay': { persona: 'soft', sig: 'press' },
+  'sand-clay': { persona: 'weighty', sig: 'stamp' },
   'mint-paper': { persona: 'soft', sig: 'float' },
   'indigo-class': { persona: 'soft', sig: 'progress-fill' },
   'rose-lounge': { persona: 'soft', sig: 'bump' },
@@ -211,6 +211,8 @@ export const MOTION_BASE_CSS = `
 @keyframes m-grow{from{transform:scaleX(0)}}
 @keyframes m-pop-in{from{transform:scale(0)}}
 @keyframes m-bump{50%{transform:scale(1.35)}}
+@keyframes m-stamp{0%{opacity:0;transform:rotate(-14deg) scale(1.9)}
+  65%{opacity:1;transform:rotate(-14deg) scale(.94)}100%{opacity:1;transform:rotate(-14deg) scale(1)}}
 @keyframes m-pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--s-acc) 60%,transparent)}
   100%{box-shadow:0 0 0 7px transparent}}
 
@@ -234,7 +236,7 @@ export const MOTION_BASE_CSS = `
 
 @media (prefers-reduced-motion:reduce){
   .m-play *,.m-play *::before,.m-play *::after,.skin:hover .pv > *,.fv-cnt{animation:none!important}
-  .fv-card:hover,.rl-up:hover,.fv-btn:active,.lay-prod:active{transform:none!important}
+  .fv-card:hover,.rl-up:hover,.lay-cart:active{transform:none!important}
 }
 `
 

@@ -47,7 +47,7 @@
 | oled-void | 발광 | 호버 시 은은한 글로우 | `.fv-card`, `.lay-prog` |
 | navy-signal | 발광 | 오렌지 시그널 점 하나만 펄스 | 첫 `.fv-cnt` |
 | deep-forest | 무게감 | 골드 라인에 광택이 한 번 스침 | `.lay-total` |
-| sand-clay | 탄성 | 누르면 쑥 눌림 (그림자가 안으로) | `.fv-btn`, `.lay-prod` |
+| sand-clay | 무게감 | 도장 찍힘 (2026-09-25 앤틱 리프레시로 눌림에서 교체) | `.lay-new`, `.lay-off`, `.lay-cart` |
 | mint-paper | 탄성 | 카드가 살짝 떠오름 | `.fv-card` |
 | indigo-class | 탄성 | 진도 바가 차오르고 완료 체크가 그려짐 | `.lms-prog`, `.fv-bar`, `.lms-dot` |
 | rose-lounge | 탄성 | 추천·좋아요 버튼 팝 | `.rl-up` |

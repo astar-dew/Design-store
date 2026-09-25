@@ -7,6 +7,9 @@
 // 표면은 .pv-kpi / .pv-panel, 버튼은 .pv-btn 클래스를 유지한다 —
 // 스킨 extra CSS(네온 격자, 보더, 그림자 시그니처)가 이 클래스들을 겨냥하기 때문.
 
+// 사진 자리는 art.mjs 의 일러스트를 쓴다 (아이콘을 키워 넣지 않는다).
+import { art, ART_CSS } from './art.mjs'
+
 /** 씬 공통 골격 — --u(프리뷰 1px)는 컨테이너 폭 480 기준 */
 export const SCENES_CSS = `
 .pv-wrap{container-type:inline-size;aspect-ratio:16/10;overflow:hidden;background:#f2f0ec}
@@ -36,7 +39,7 @@ export const SCENES_CSS = `
 /* ---------- 씬 정의 ---------- */
 
 const scenes = {}
-const css = []
+const css = [ART_CSS]
 
 /* 코발트 그레이 — B2B SaaS 대시보드 (KPI + 도넛 + 추이) */
 scenes['cobalt-gray'] = {
@@ -284,38 +287,49 @@ css.push(`
 
 /* 샌드 클레이 — 쇼핑몰 제품 카드 */
 scenes['sand-clay'] = {
-  domain: '커머스 · 리테일',
+  domain: '커머스 · 공방',
   html: `
   <div class="pv-kpi sc-prod">
-    <i class="sc-img"><svg viewBox="0 0 48 48"><path d="M14 20c0-7 4.5-11 10-11s10 4 10 11c0 3-1 5-2 7 2 1.6 3 4 3 6.5C35 39 30.4 42 24 42s-11-3-11-8.5c0-2.5 1-4.9 3-6.5-1-2-2-4-2-7Z"/></svg></i>
-    <b>세라믹 화병 no.4</b>
-    <small class="sc-star">★★★★★ <em>4.9 (212)</em></small>
+    <i class="sc-img">${art('vase')}</i>
+    <b>세라믹 화병 No.4</b>
+    <small class="sc-sub">수제 백자 · 높이 24cm</small>
     <div class="sc-row"><b class="num">₩32,000</b><span class="sc-opts"><i></i><i></i><i></i></span></div>
   </div>
-  <span class="badge sc-b">BEST</span>
+  <span class="sc-stamp">NEW</span>
+  <div class="sc-note">
+    <small>STUDIO CLAY · EST. 1987</small>
+    <i>❦</i>
+    <b>손으로 빚은<br>계절의 그릇</b>
+  </div>
   <span class="pv-btn sc-btn">장바구니 담기</span>`,
 }
 css.push(`
-.sc-prod{left:calc(var(--u) * 62);top:calc(var(--u) * 30);z-index:3;
-  width:calc(var(--u) * 216);padding:calc(var(--u) * 16)}
-.sc-img{display:flex;align-items:center;justify-content:center;
-  height:calc(var(--u) * 104);border-radius:calc(var(--u) * max(var(--s-r) - 4, 3));
-  background:color-mix(in srgb,var(--s-acc) 16%,var(--s-bg));margin-bottom:calc(var(--u) * 12)}
-.sc-img svg{width:calc(var(--u) * 52);height:calc(var(--u) * 52);
-  fill:color-mix(in srgb,var(--s-acc) 75%,var(--s-fg) 10%)}
-.sc-prod>b{font-size:calc(var(--u) * 15);display:block}
-.sc-star{font-size:calc(var(--u) * 12);color:var(--s-acc);display:block;
-  margin:calc(var(--u) * 3) 0 calc(var(--u) * 10)}
-.sc-star em{font-style:normal;color:var(--s-dim)}
+.sc-prod{left:calc(var(--u) * 48);top:calc(var(--u) * 24);z-index:3;
+  width:calc(var(--u) * 196);padding:calc(var(--u) * 12)}
+.sc-img{display:block;height:calc(var(--u) * 132);margin-bottom:calc(var(--u) * 10);padding:calc(var(--u) * 10);
+  background:color-mix(in srgb,var(--s-acc) 5%,var(--s-bg));border:1px solid var(--s-line);
+  outline:1px solid var(--s-line);outline-offset:calc(var(--u) * -5)}
+.sc-prod>b{font-size:calc(var(--u) * 15);display:block;font-family:var(--s-head-font);font-weight:var(--s-head-w)}
+.sc-sub{font-size:calc(var(--u) * 10.5);color:var(--s-dim);display:block;margin:calc(var(--u) * 2) 0 calc(var(--u) * 8)}
 .sc-row{display:flex;align-items:center;justify-content:space-between}
-.sc-row b{font-size:calc(var(--u) * 21)}
+.sc-row b{font-size:calc(var(--u) * 19);font-family:var(--s-head-font);font-variant-numeric:oldstyle-nums}
 .sc-opts{display:flex;gap:calc(var(--u) * 5)}
-.sc-opts i{width:calc(var(--u) * 13);height:calc(var(--u) * 13);border-radius:50%}
+.sc-opts i{width:calc(var(--u) * 11);height:calc(var(--u) * 11);border-radius:50%}
 .sc-opts i:nth-child(1){background:var(--s-acc)}
 .sc-opts i:nth-child(2){background:color-mix(in srgb,var(--s-acc) 45%,var(--s-bg))}
-.sc-opts i:nth-child(3){background:var(--s-line);border:1px solid var(--s-dim)}
-.sc-b{right:calc(var(--u) * 116);top:calc(var(--u) * 40);z-index:4;transform:rotate(4deg)}
-.sc-btn{right:calc(var(--u) * 40);bottom:calc(var(--u) * 42)}`)
+.sc-opts i:nth-child(3){background:var(--s-sur);border:1px solid var(--s-dim)}
+.sc-stamp{position:absolute;left:calc(var(--u) * 212);top:calc(var(--u) * 14);z-index:4;
+  width:calc(var(--u) * 46);height:calc(var(--u) * 46);border-radius:50%;display:flex;
+  align-items:center;justify-content:center;color:var(--s-acc);border:1.5px solid var(--s-acc);
+  box-shadow:inset 0 0 0 2px var(--s-sur),inset 0 0 0 3px var(--s-acc);background:var(--s-sur);
+  font:700 calc(var(--u) * 11)/1 var(--s-head-font);letter-spacing:.06em;transform:rotate(-14deg)}
+.sc-note{position:absolute;left:calc(var(--u) * 276);top:calc(var(--u) * 44);width:calc(var(--u) * 170);
+  text-align:center;color:var(--s-fg)}
+.sc-note small{display:block;font-size:calc(var(--u) * 9.5);letter-spacing:.2em;color:var(--s-dim)}
+.sc-note i{display:block;font-style:normal;color:var(--s-acc);margin:calc(var(--u) * 8) 0;font-size:calc(var(--u) * 16)}
+.sc-note b{display:block;font:var(--s-head-w) calc(var(--u) * 24)/1.3 var(--s-head-font)}
+.sc-btn{right:calc(var(--u) * 52);bottom:calc(var(--u) * 40);background:transparent!important;
+  color:var(--s-fg)!important;box-shadow:inset 0 0 0 1px var(--s-fg)!important;letter-spacing:.12em}`)
 
 /* 딥 포레스트 — 자산관리 (잔고 + 카드) */
 scenes['deep-forest'] = {

@@ -8,6 +8,9 @@
 // 사이드바·상단바·카드·배지·테이블·버튼·차트가 이미 토큰 기반이기 때문.
 // 레이아웃 고유 부분만 .lay-* 로 추가한다.
 
+// 사진 자리(상품·인물·지도·문서·부품)는 아이콘이 아니라 art.mjs 의 일러스트를 쓴다.
+import { art, ART_CSS } from './art.mjs'
+
 /** 추가 아이콘 — skins.mjs 의 ICON_SPRITE 와 함께 페이지에 심는다 */
 export const EXTRA_SPRITE = `<svg width="0" height="0" style="position:absolute" aria-hidden="true">
 <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.2v15.6L20 12 7 4.2Z" fill="currentColor" stroke="none"/></symbol>
@@ -291,11 +294,11 @@ LAYOUTS.commerce = {
   <div class="lay-chips"><span class="on">전체</span><span>화병</span><span>캔들</span><span>트레이</span><span>패브릭</span>
     <span class="lay-sort">인기순 ${ic('chev')}</span></div>
   <div class="lay-prods">
-    ${[['세라믹 화병 no.4', '32,000', '4.9', '212', 1, 'vase'], ['오크 트레이', '48,000', '4.8', '96', 0, 'basket'],
-    ['린넨 쿠션 커버', '29,000', '4.7', '341', 0, 'layers'], ['소이 캔들 · 시더', '18,000', '5.0', '77', 1, 'cup'],
-    ['스톤웨어 머그', '22,000', '4.6', '158', 0, 'cup'], ['라탄 바스켓', '54,000', '4.9', '43', 0, 'basket']]
+    ${[['세라믹 화병 no.4', '32,000', '4.9', '212', 1, 'vase'], ['오크 트레이', '48,000', '4.8', '96', 0, 'tray'],
+    ['린넨 쿠션 커버', '29,000', '4.7', '341', 0, 'cushion'], ['소이 캔들 · 시더', '18,000', '5.0', '77', 1, 'candle'],
+    ['스톤웨어 머그', '22,000', '4.6', '158', 0, 'mug'], ['라탄 바스켓', '54,000', '4.9', '43', 0, 'basket']]
       .map(([n, p, r, c, badge, glyph]) => `<article class="lay-prod">
-      <div class="lay-img">${badge ? '<span class="fv-badge ok lay-new">NEW</span>' : ''}${ic(glyph, 'lay-ph')}</div>
+      <div class="lay-img">${badge ? '<span class="fv-badge ok lay-new">NEW</span>' : ''}${art(glyph)}</div>
       <b>${n}</b>
       <small>${ic('star', 'lay-star')}${r} <em>(${c})</em></small>
       <div class="lay-price"><b class="num">₩${p}</b><span class="lay-opts"><i></i><i></i><i></i></span></div>
@@ -310,13 +313,13 @@ LAYOUTS.commerce = {
       ${chips(['전체', '리빙', '주방', '패브릭'], '판매량순')}
       <div class="lay-rank">
         ${[[1, '세라믹 화병 no.4', '화병 · 아이보리', '32,000', 100, '1,284', 'vase'],
-        [2, '소이 캔들 · 시더', '캔들 · 200g', '18,000', 78, '996', 'cup'],
-        [3, '린넨 쿠션 커버', '패브릭 · 45×45', '29,000', 61, '781', 'layers'],
-        [4, '오크 트레이', '트레이 · 대', '48,000', 44, '562', 'basket'],
-        [5, '스톤웨어 머그', '주방 · 320ml', '22,000', 31, '398', 'cup']]
+        [2, '소이 캔들 · 시더', '캔들 · 200g', '18,000', 78, '996', 'candle'],
+        [3, '린넨 쿠션 커버', '패브릭 · 45×45', '29,000', 61, '781', 'cushion'],
+        [4, '오크 트레이', '트레이 · 대', '48,000', 44, '562', 'tray'],
+        [5, '스톤웨어 머그', '주방 · 320ml', '22,000', 31, '398', 'mug']]
         .map(([n, t, c, p, w, cnt, g]) => `<div class="lay-rank-r">
           <b class="lay-rank-n">${n}</b>
-          <i class="lay-rank-th">${ic(g, 'lay-ph')}</i>
+          <i class="lay-rank-th">${art(g)}</i>
           <div class="lay-rank-t"><b>${t}</b><small>${c}</small></div>
           <div class="fv-bar lay-rank-b"><i style="width:${w}%"></i></div>
           <em class="lay-rank-c">${cnt}개</em>
@@ -328,9 +331,9 @@ LAYOUTS.commerce = {
       title: '카테고리', sub: '8개 분류 · 전체 128개 상품',
       main: `
       <div class="lay-tiles">
-        ${[['vase', '화병 · 오브제', 24], ['cup', '캔들 · 디퓨저', 18], ['basket', '수납 · 바스켓', 16],
-        ['layers', '패브릭 · 쿠션', 31], ['cup', '주방 · 테이블웨어', 27], ['heart', '기프트 세트', 12]]
-        .map(([g, n, c]) => `<div class="fv-card lay-tile">${ic(g, 'lay-ph')}
+        ${[['vase', '화병 · 오브제', 24], ['candle', '캔들 · 디퓨저', 18], ['basket', '수납 · 바스켓', 16],
+        ['cushion', '패브릭 · 쿠션', 31], ['mug', '주방 · 테이블웨어', 27], ['gift', '기프트 세트', 12]]
+        .map(([g, n, c]) => `<div class="fv-card lay-tile"><i class="lay-tile-a">${art(g)}</i>
           <b>${n}</b><small>${c}개</small></div>`).join('')}
       </div>
       ${card('많이 찾는 태그', '', `<div class="lay-chips lay-tags">
@@ -346,11 +349,11 @@ LAYOUTS.commerce = {
         <div class="lay-timer">${ic('clock')}<span>03</span>:<span>21</span>:<span>44</span></div>
       </div>
       <div class="lay-prods">
-        ${[['라탄 바스켓', '54,000', '32,400', 40, 'basket'], ['오크 트레이', '48,000', '33,600', 30, 'basket'],
-        ['스톤웨어 머그', '22,000', '17,600', 20, 'cup'], ['린넨 쿠션 커버', '29,000', '20,300', 30, 'layers'],
-        ['세라믹 화병 no.2', '38,000', '26,600', 30, 'vase'], ['소이 캔들 · 우드', '18,000', '12,600', 30, 'cup']]
+        ${[['라탄 바스켓', '54,000', '32,400', 40, 'basket'], ['오크 트레이', '48,000', '33,600', 30, 'tray'],
+        ['스톤웨어 머그', '22,000', '17,600', 20, 'mug'], ['린넨 쿠션 커버', '29,000', '20,300', 30, 'cushion'],
+        ['세라믹 화병 no.2', '38,000', '26,600', 30, 'vase'], ['소이 캔들 · 우드', '18,000', '12,600', 30, 'candle']]
         .map(([n, was, now, off, g]) => `<article class="lay-prod">
-          <div class="lay-img"><span class="fv-badge warn lay-off">${off}%</span>${ic(g, 'lay-ph')}</div>
+          <div class="lay-img"><span class="fv-badge warn lay-off">${off}%</span>${art(g)}</div>
           <b>${n}</b>
           <small class="lay-was">₩${was}</small>
           <div class="lay-price"><b class="num">₩${now}</b></div>
@@ -408,7 +411,7 @@ LAYOUTS.article = {
     interview: {
       main: `
       <div class="lay-feat">
-        <i class="lay-feat-img">${ic('users', 'lay-ph')}</i>
+        <i class="lay-feat-img">${art('portrait')}</i>
         <div>
           <small class="lay-kick">인터뷰 · 8월호</small>
           <h1 class="num">30년째 같은<br>화병을 굽는 사람</h1>
@@ -891,10 +894,10 @@ LAYOUTS.drawing = {
       actions: [['BOM 내보내기', true, 'down'], ['간섭 검사', false, 'check']],
       main: `
       <div class="lay-asm">
-        ${[['BRACKET-A24', 'C', 'idle', '대기'], ['HOUSING-B02', 'A', 'ok', '승인'],
-        ['PLATE-C11', 'B', 'idle', '검토'], ['볼트 M8×20', '—', 'ok', '표준품']]
-        .map(([n, r, cls, st]) => `<div class="fv-card lay-asm-c">
-          ${ic('file', 'lay-ph')}<b>${n}</b><small>REV ${r}</small>${bdg(cls, st)}</div>`).join('')}
+        ${[['BRACKET-A24', 'C', 'idle', '대기', 'bracket'], ['HOUSING-B02', 'A', 'ok', '승인', 'housing'],
+        ['PLATE-C11', 'B', 'idle', '검토', 'plate'], ['볼트 M8×20', '—', 'ok', '표준품', 'bolt']]
+        .map(([n, r, cls, st, part]) => `<div class="fv-card lay-asm-c">
+          <i class="lay-asm-a">${art('part-' + part)}</i><b>${n}</b><small>REV ${r}</small>${bdg(cls, st)}</div>`).join('')}
       </div>
       ${card('BOM', '<span class="fv-link">전체 보기</span>', table(
         [['No'], ['부품번호'], ['재질'], ['수량', 1], ['상태']], [
@@ -1105,7 +1108,7 @@ LAYOUTS.kanban = {
         ['라벨 규격 변경 공지', '운영 매뉴얼', '오', 1, '3주 전'],
         ['분기 KPI 정의서', '회의록', '윤', 4, '1개월 전']]
         .map(([t, k, ini, c, when]) => `<div class="fv-card lay-doc">
-          ${ic('file', 'lay-ph')}<b>${t}</b><small>${k}</small>
+          <i class="lay-doc-a">${art('doc')}</i><b>${t}</b><small>${k}</small>
           <div class="lay-doc-f">${av(ini, c, 'xs')}<em>${when}</em></div></div>`).join('')}
       </div>`,
     },
@@ -1232,7 +1235,7 @@ LAYOUTS.booking = {
               <div class="lay-q"><b>${q}</b>${ic('chev')}</div>
               ${i === 0 ? `<p>${a}</p>` : ''}</li>`).join('')}
           </ul>`)}
-          ${card('오시는 길', '', `<div class="lay-map">${ic('pin', 'lay-ph')}</div>
+          ${card('오시는 길', '', `<div class="lay-map">${art('map')}</div>
             <dl class="lay-props"><dt>주소</dt><dd>서울 강남구 테헤란로 120 3층</dd>
             <dt>전화</dt><dd>02-1234-5678</dd>
             <dt>진료</dt><dd>평일 08:30–17:30 · 토 08:30–12:30</dd></dl>`)}
@@ -1620,7 +1623,7 @@ LAYOUTS.civic = {
           .map(([n, tel, role]) => `<li><b>${n}</b><span>${role}</span><em class="mono">${tel}</em></li>`).join('')}
         </ul>`)}
         <aside>
-          ${card('찾아오시는 길', '', `<div class="civ-map">${ic('pin', 'lay-ph')}</div>
+          ${card('찾아오시는 길', '', `<div class="civ-map">${art('map')}</div>
             <dl class="lay-props"><dt>주소</dt><dd>서울특별시 ○○구 시청로 1</dd>
             <dt>대표전화</dt><dd>02-1234-5600</dd>
             <dt>운영시간</dt><dd>평일 09:00–18:00 (점심 12:00–13:00)</dd></dl>`)}
@@ -1791,6 +1794,17 @@ export function renderLayout(key) {
 
 /* ---------- 레이아웃 고유 CSS ---------- */
 export const LAYOUTS_CSS = `
+${ART_CSS}
+/* 사진 자리 — 틀은 각 레이아웃이 잡고, 일러스트는 그 안을 채운다 */
+.lay-img{overflow:hidden}
+.lay-img .art{position:absolute;inset:6% 8%;width:84%;height:88%}
+.lay-rank-th{overflow:hidden}
+.lay-rank-th .art{width:92%;height:92%}
+.lay-tile-a{display:block;width:calc(var(--v) * 84);height:calc(var(--v) * 64);margin-bottom:calc(var(--v) * 4)}
+.lay-feat-img{overflow:hidden}
+.lay-map,.civ-map{overflow:hidden}
+.lay-asm-a{display:block;width:calc(var(--v) * 66);height:calc(var(--v) * 44);margin-bottom:calc(var(--v) * 6)}
+.lay-doc-a{display:block;width:calc(var(--v) * 30);height:calc(var(--v) * 36);margin-bottom:calc(var(--v) * 8)}
 /* 상단 내비 (사이드바 없는 레이아웃) */
 .lay-topnav{gap:calc(var(--v) * 26)}
 .lay-logo{font-family:var(--s-head-font);font-weight:var(--s-head-w);
@@ -1815,9 +1829,6 @@ export const LAYOUTS_CSS = `
   align-items:center;justify-content:center;margin-bottom:calc(var(--v) * 10);
   border-radius:calc(var(--v) * max(var(--s-r) - 3, 2));
   background:color-mix(in srgb,var(--s-acc) 13%,var(--s-bg))}
-.lay-ph{width:calc(var(--v) * 40);height:calc(var(--v) * 40);fill:none;
-  stroke:color-mix(in srgb,var(--s-acc) 62%,var(--s-fg) 12%);stroke-width:1.4;
-  stroke-linecap:round;stroke-linejoin:round}
 .lay-new{position:absolute;top:calc(var(--v) * 8);left:calc(var(--v) * 8)}
 .lay-prod>b{font-size:calc(var(--v) * 13);display:block}
 .lay-prod>small{display:flex;align-items:center;gap:calc(var(--v) * 4);
@@ -2140,7 +2151,6 @@ button.lay-tab{font:inherit;font-size:inherit;border:none;background:none;cursor
 .lay-rank-th{width:calc(var(--v) * 40);height:calc(var(--v) * 40);flex:none;display:flex;
   align-items:center;justify-content:center;border-radius:calc(var(--v) * max(var(--s-r) - 2, 2));
   background:color-mix(in srgb,var(--s-acc) 13%,var(--s-bg))}
-.lay-rank-th .lay-ph{width:calc(var(--v) * 22);height:calc(var(--v) * 22)}
 .lay-rank-t{width:calc(var(--v) * 170);flex:none}
 .lay-rank-t b{display:block;font-size:calc(var(--v) * 12.5)}
 .lay-rank-t small{font-size:calc(var(--v) * 10.5);color:var(--s-dim)}
@@ -2273,7 +2283,6 @@ button.lay-tab{font:inherit;font-size:inherit;border:none;background:none;cursor
 .lay-asm{display:grid;grid-template-columns:repeat(4,1fr);gap:calc(var(--v) * 12);flex:none}
 .lay-asm-c{padding:calc(var(--v) * 14);display:flex;flex-direction:column;
   align-items:flex-start;gap:calc(var(--v) * 4)}
-.lay-asm-c .lay-ph{width:calc(var(--v) * 26);height:calc(var(--v) * 26);margin-bottom:calc(var(--v) * 6)}
 .lay-asm-c b{font-size:calc(var(--v) * 12)}
 .lay-asm-c small{font-size:calc(var(--v) * 10.5);color:var(--s-dim);margin-bottom:calc(var(--v) * 6)}
 
@@ -2311,7 +2320,6 @@ button.lay-tab{font:inherit;font-size:inherit;border:none;background:none;cursor
 /* 운영 — 문서 */
 .lay-docs{display:grid;grid-template-columns:repeat(3,1fr);gap:calc(var(--v) * 12);flex:1;min-height:0}
 .lay-doc{padding:calc(var(--v) * 14);display:flex;flex-direction:column;gap:calc(var(--v) * 3)}
-.lay-doc .lay-ph{width:calc(var(--v) * 22);height:calc(var(--v) * 22);margin-bottom:calc(var(--v) * 8)}
 .lay-doc b{font-size:calc(var(--v) * 12.5)}
 .lay-doc small{font-size:calc(var(--v) * 10.5);color:var(--s-dim)}
 .lay-doc-f{display:flex;align-items:center;gap:calc(var(--v) * 4);margin-top:calc(var(--v) * 10)}
@@ -2367,7 +2375,6 @@ button.lay-tab{font:inherit;font-size:inherit;border:none;background:none;cursor
 .lay-map{height:calc(var(--v) * 76);display:flex;align-items:center;justify-content:center;
   border-radius:calc(var(--v) * max(var(--s-r) - 2, 2));margin-bottom:calc(var(--v) * 10);
   background:color-mix(in srgb,var(--s-acc) 12%,var(--s-bg))}
-.lay-map .lay-ph{width:calc(var(--v) * 28);height:calc(var(--v) * 28)}
 
 /* 표·목록 카드는 프레임을 채운다 — 짧은 카드가 화면 절반에 떠 있으면 미완성으로 읽힌다 */
 .lay-fill{flex:1;min-height:0}
@@ -2671,7 +2678,6 @@ button.lay-tab{font:inherit;font-size:inherit;border:none;background:none;cursor
 .civ-map{height:calc(var(--v) * 84);display:flex;align-items:center;justify-content:center;
   border:var(--fv-bd);border-radius:calc(var(--v) * var(--s-r));
   margin-bottom:calc(var(--v) * 10);background:color-mix(in srgb,var(--s-acc) 8%,var(--s-bg))}
-.civ-map .lay-ph{width:calc(var(--v) * 28);height:calc(var(--v) * 28)}
 
 /* 브랜드 · 랜딩 */
 .mono-hero{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;

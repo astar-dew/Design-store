@@ -15,6 +15,9 @@
 // 다크는 라이트의 반전이 아니다. 아래 값들은 그 원칙을 따른다:
 //   순검정/순백 금지 · 액센트는 채도↓ 명도↑ · 깊이는 그림자가 아니라 표면 밝기로.
 
+// 종이 질감 — 샌드 클레이가 쓴다. '#' 은 %23 으로 인코딩해야 url() 안에서 안 깨진다
+const PAPER = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .2 0 0 0 0 .1 0 0 0 .11 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),radial-gradient(ellipse at center,transparent 55%,rgba(90,60,30,.10))`
+
 export const SKINS = [
   {
     id: 'cobalt-gray',
@@ -248,33 +251,60 @@ export const SKINS = [
   {
     id: 'sand-clay',
     name: '샌드 클레이',
-    sub: '흙빛 팔레트와 부드러운 덩어리감',
-    lineage: '클레이모피즘 + 어스톤',
+    sub: '바랜 종이 위 세피아 잉크. 이중 괘선 액자와 도장, 판화 같은 정물',
+    lineage: '빈티지 인쇄물 + 공방 커머스',
     bench: [
       ['Aesop', 'https://www.aesop.com', '흙빛 팔레트와 여백으로 프리미엄을 만든 커머스'],
-      ['Airbnb', 'https://airbnb.com', '부드러운 라운드·카드 중심 소비자 UI'],
-      ['무신사 스탠다드', 'https://www.musinsastandard.co.kr', '국내 커머스의 제품 그리드·옵션 표현'],
+      ['Diptyque', 'https://www.diptyqueparis.com', '판화풍 일러스트·타원 라벨로 앤틱을 브랜드 자산으로 만든 예'],
+      ['오설록', 'https://www.osulloc.com', '국내 차·공예 커머스의 부리 헤드라인과 괘선 관례'],
     ],
-    fits: '웰니스·리테일·커머스, 소비자용 앱',
-    watch: '라운드가 크면 정보 밀도가 급격히 떨어진다. 테이블 중심 화면엔 안 맞는다.',
+    fits: '공예·차·빈티지·라이프스타일 편집숍 — 물건에 이야기와 손맛이 있는 커머스',
+    watch: '앤틱은 장식이 늘어나는 순간 촌스러워진다. 괘선·도장·장식 기호는 화면당 한 번씩만. 그리고 종이 질감과 세피아 본문은 대비가 빠듯하다 — 회색 본문이나 더 옅은 종이색 요청은 대비 검사로 막을 것.',
     base: 'light',
+    // 클레이모피즘(둥근 덩어리·이중 섀도우)에서 옮겼다. 인쇄물엔 그림자가 없다 — 경계는 괘선으로만.
     vars: {
-      bg: '#f5efe6', sur: '#ffffff', line: 'transparent', fg: '#3a3128', dim: '#786b5c',
-      acc: '#b85d34', accFg: '#ffffff', sideBg: '#faf6f0', navOn: '#f0e5d6', navOnFg: '#6b4a2f',
-      bw: '0', r: '16', sh: '0 6px 14px rgba(120,95,70,.13), inset 0 -2px 4px rgba(150,125,100,.08)',
-      font: 'Inter,system-ui,sans-serif', headFont: 'inherit', headWeight: '700', tracking: '-0.01em',
+      bg: '#efe6d4', sur: '#f8f2e5', line: '#b3a07e', fg: '#2e241b', dim: '#655543',
+      acc: '#8c3a1f', accFg: '#f8f2e5', sideBg: '#ebe0cb', navOn: '#e2d4b8', navOnFg: '#2e241b',
+      bw: '1', r: '3', sh: 'none',
+      font: 'Pretendard Variable,Pretendard,system-ui,sans-serif',
+      // Cormorant 에는 한글이 없다 — 한글은 고운 바탕으로 떨어진다
+      headFont: 'Cormorant Garamond,Gowun Batang,serif', headWeight: '700', tracking: '0',
     },
     alt: {
-      bg: '#1a1613', sur: '#262019', line: 'transparent', fg: '#efe6d9', dim: '#a2937e',
-      acc: '#e08a5c', accFg: '#1a1613', sideBg: '#1f1a15', navOn: '#33291f', navOnFg: '#efe6d9',
-      sh: '0 6px 14px rgba(0,0,0,.42), inset 0 -2px 4px rgba(255,255,255,.04)',
+      bg: '#1b1712', sur: '#241f18', line: '#5e503b', fg: '#eadfc8', dim: '#ab9b80',
+      acc: '#d98b5f', accFg: '#1b1712', sideBg: '#1f1a14', navOn: '#322a20', navOnFg: '#eadfc8',
     },
-    extra: `.pv-side{border-radius:0 calc(var(--u) * 20) calc(var(--u) * 20) 0}
-.pv-kpi,.pv-panel,.pv-btn{box-shadow:var(--s-sh)}
-.pv-nav{border-radius:calc(var(--u) * 11)}`,
-    extraFull: `.fv-side{border-radius:0 calc(var(--v) * 26) calc(var(--v) * 26) 0}
-.fv-nav{border-radius:calc(var(--v) * 12)}
-.fv-search,.fv-ws{border-width:0}`,
+    fonts: [
+      'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Gowun+Batang:wght@400;700&display=swap',
+      'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css',
+    ],
+    // 종이 질감 — 옅은 노이즈 + 가장자리만 살짝 어둡게. 스크롤해도 따라오지 않게 요소에 붙인다
+    extra: `.pv{background-image:${PAPER}}
+.pv-kpi,.pv-panel{border:1px solid var(--s-line);box-shadow:none}`,
+    extraFull: `.fv{background-image:${PAPER}}
+.fv-top{border-bottom:3px double var(--s-line)}
+.lay-logo{font-family:var(--s-head-font);letter-spacing:.2em;font-weight:700}
+.fv-h h2{font-family:var(--s-head-font);font-weight:var(--s-head-w)}
+.fv-btn,.fv-card,.fv-kpi{box-shadow:none}
+.lay-chips span{border:0;border-radius:0;background:none}
+.lay-chips span.on{background:none;box-shadow:inset 0 -1px 0 var(--s-fg);color:var(--s-fg)}
+.lay-prod{background:var(--s-sur);border:1px solid var(--s-line);box-shadow:none}
+.lay-img{min-height:calc(var(--v) * 52);background:color-mix(in srgb,var(--s-acc) 5%,var(--s-bg));
+  border:1px solid var(--s-line);outline:1px solid var(--s-line);outline-offset:calc(var(--v) * -5)}
+.lay-prod>b,.lay-rank-t b,.lay-tile b{font-family:var(--s-head-font);font-weight:var(--s-head-w);letter-spacing:.01em}
+.lay-price b{font-family:var(--s-head-font);font-size:calc(var(--v) * 16);font-variant-numeric:oldstyle-nums}
+.lay-cart{background:transparent;color:var(--s-fg);border:1px solid var(--s-fg);letter-spacing:.14em;
+  padding-block:calc(var(--v) * 6)}
+.lay-cart:hover{background:var(--s-fg);color:var(--s-bg);filter:none}
+.lay-new,.lay-off{width:calc(var(--v) * 40);height:calc(var(--v) * 40);padding:0;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;background:none;color:var(--s-acc);
+  border:1.5px solid var(--s-acc);box-shadow:inset 0 0 0 2px var(--s-sur),inset 0 0 0 3px var(--s-acc);
+  font-family:var(--s-head-font);font-size:calc(var(--v) * 10.5);letter-spacing:.06em;transform:rotate(-14deg)}
+.lay-page::before,.lay-page::after{content:'❦';color:var(--s-acc);opacity:.7;align-self:center;
+  margin-inline:calc(var(--v) * 10)}
+.lay-page::after{transform:scaleX(-1)}
+.lay-rank-th,.lay-tile{border:1px solid var(--s-line)}
+.lay-banner{border:1px solid var(--s-line);outline:1px solid var(--s-line);outline-offset:calc(var(--v) * -5)}`,
   },
   {
     id: 'deep-forest',
