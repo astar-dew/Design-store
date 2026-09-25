@@ -173,6 +173,14 @@ body{margin:0;background:var(--bg);color:var(--fg);
   font:15px/1.6 ui-sans-serif,-apple-system,"Pretendard","Apple SD Gothic Neo",system-ui,sans-serif;
   -webkit-font-smoothing:antialiased}
 .wrap{max-width:1240px;margin:0 auto;padding:22px 24px 90px}
+/* 사이트 헤더 — 초기화면과 같은 브랜드. 스킨 이름이 이 페이지의 h1 이라 브랜드는 링크로만 둔다 */
+.site{border-bottom:1px solid var(--line)}
+.site-in{max-width:1240px;margin:0 auto;padding:20px 24px 16px}
+.brand{display:inline-flex;align-items:baseline;gap:10px;color:var(--fg);text-decoration:none}
+.brand b{font-size:19px;letter-spacing:-.015em}
+.brand span{font-size:13px;color:var(--dim)}
+.brand:hover b{color:var(--accent)}
+.brand:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
 .top{display:flex;align-items:center;gap:14px;margin-bottom:20px}
 .back{font-size:13.5px;color:var(--dim);text-decoration:none;padding:7px 13px;
   border:1px solid var(--line);border-radius:8px;flex:none}
@@ -245,6 +253,8 @@ ${FOOTER_CSS}
 @media (max-width:900px){.info{grid-template-columns:1fr}.demo-grid{grid-template-columns:1fr 1fr}}
 @media (max-width:720px){
   .wrap{padding:16px 16px 60px}
+  .site-in{padding:16px 16px 12px}
+  .brand span{display:none}   /* 좁으면 부제는 뺀다 — 브랜드가 두 줄로 쪼개지는 것보다 낫다 */
   /* 헤더가 한 줄에 다 못 들어가면 줄바꿈한다 — 안 그러면 제목이 글자 단위로 쪼개지고
      오른쪽 끝의 모드 스위치가 화면 밖으로 잘린다 */
   .top{flex-wrap:wrap;gap:8px 10px}
@@ -261,6 +271,10 @@ ${FOOTER_CSS}
 }
 </style></head><body>
 ${ICON_SPRITE}${EXTRA_SPRITE}
+<header class="site">
+  <div class="site-in"><a class="brand" href="../index.html" aria-label="A-Dew, design-store — 메인으로"
+    ><b>A-Dew, design-store</b><span>디자인 레퍼런스 저장소</span></a></div>
+</header>
 <div class="wrap">
   <div class="top">
     <a class="back" href="../index.html#design">← 디자인 탭</a>

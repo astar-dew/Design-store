@@ -36,3 +36,10 @@ test('스킨 카드 14장에 모션 강도가 붙고, 깔끔한 모션 필터가
   assert.ok(/<button class="fchip fchip-calm"[^>]*data-calm/.test(h), '깔끔한 모션 칩')
   assert.ok(h.includes('const skinVisible = function skinVisible'), '필터 함수가 페이지에 들어간다')
 })
+
+test('스킨 페이지 맨 위 헤더를 누르면 메인으로 간다', () => {
+  for (const s of SKINS) {
+    const h = read(`skins/${s.id}.html`)
+    assert.match(h, /<header class="site">[\s\S]*?<a class="brand" href="\.\.\/index\.html"/, s.id)
+  }
+})
