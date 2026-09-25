@@ -41,14 +41,14 @@ const av = (t, c, cls = '') => `<span class="fv-av ${cls}" data-c="${c}">${t}</s
 
 /* ---------- 공통 크롬 ---------- */
 
-const sidebar = L => `<aside class="fv-side">
+const sidebar = (L, on = L.home) => `<aside class="fv-side">
   <div class="fv-ws">${ic(L.logo || 'box', 'fv-i fv-logo')}<b>${L.brand}</b>${ic('chev', 'fv-i fv-cv')}</div>
   <nav class="fv-navs">
     ${L.navLabel ? `<div class="fv-lbl">${L.navLabel}</div>` : ''}
     ${L.nav.map(([i, t, v, cnt]) =>
-  `<button type="button" class="fv-nav${v === L.home ? ' is-on' : ''}" data-v="${v}">${ic(i)}${t}${cnt ? `<span class="fv-cnt">${cnt}</span>` : ''}</button>`).join('')}
+  `<button type="button" class="fv-nav${v === on ? ' is-on' : ''}" data-v="${v}">${ic(i)}${t}${cnt ? `<span class="fv-cnt">${cnt}</span>` : ''}</button>`).join('')}
     ${L.nav2 ? `<div class="fv-lbl">${L.nav2Label || '관리'}</div>${L.nav2.map(([i, t, v]) =>
-    `<button type="button" class="fv-nav" data-v="${v}">${ic(i)}${t}</button>`).join('')}` : ''}
+    `<button type="button" class="fv-nav${v === on ? ' is-on' : ''}" data-v="${v}">${ic(i)}${t}</button>`).join('')}` : ''}
   </nav>
   <div class="fv-user">${av('진', 5)}<div><b>박진우</b><small>jinwoo@acme.co</small></div></div>
 </aside>`
@@ -60,10 +60,10 @@ const topbar = (L, home) => `<header class="fv-top">
 </header>`
 
 /** 사이드바 없는 레이아웃(쇼핑몰·매거진·예약)의 상단 내비 */
-const topnav = L => `<header class="fv-top lay-topnav">
+const topnav = (L, on = L.home) => `<header class="fv-top lay-topnav">
   <b class="lay-logo">${L.brand}</b>
   <nav>${L.tabs.map(([t, v]) =>
-  `<button type="button" class="lay-tab${v === L.home ? ' on' : ''}" data-v="${v}">${t}</button>`).join('')}</nav>
+  `<button type="button" class="lay-tab${v === on ? ' on' : ''}" data-v="${v}">${t}</button>`).join('')}</nav>
   <div class="fv-tools">${(L.topIcons || ['search', 'heart', 'cart']).map(i => ic(i)).join('')}${av('진', 5, 'sm')}</div>
 </header>`
 
@@ -1772,21 +1772,41 @@ const viewsOf = L => ({
   ...(L.views || {}),
 })
 
-export function renderLayout(key) {
+/** 레이아웃의 화면 목록 — 홈이 먼저(대표 화면), 나머지는 내비 순서. 이름은 내비에 적힌 글자 */
+export function layoutViews(key) {
+  const L = LAYOUTS[key]
+  if (!L) throw new Error(`레이아웃 없음: ${key}`)
+  const named = L.chrome === 'sidebar'
+    ? [...L.nav, ...(L.nav2 || [])].map(([, t, v]) => [v, t])
+    : L.tabs.map(([t, v]) => [v, t])
+  const label = new Map(named)
+  return Object.keys(viewsOf(L)).map(id => ({ id, label: label.get(id) }))
+    .sort((a, b) => (b.id === L.home) - (a.id === L.home)
+      || named.findIndex(n => n[0] === a.id) - named.findIndex(n => n[0] === b.id))
+}
+
+/**
+ * 레이아웃 → 목업 HTML.
+ * only 를 주면 그 화면 하나만 그리고 내비·경로도 그 화면에 맞춘다 (쇼케이스 카드용 — 화면 전환 없음).
+ */
+export function renderLayout(key, only) {
   const L = LAYOUTS[key]
   if (!L) throw new Error(`레이아웃 없음: ${key}`)
   const V = viewsOf(L)
+  if (only && !V[only]) throw new Error(`${key}: 없는 화면 → ${only}`)
   // 내비가 가리키는 뷰가 실제로 있는지 빌드에서 잡는다 — 눌러도 안 바뀌는 메뉴가 데모에서 제일 티 난다
   const linked = [...(L.nav || []).map(n => n[2]), ...(L.nav2 || []).map(n => n[2]), ...(L.tabs || []).map(t => t[1])]
   for (const k of linked) if (!V[k]) throw new Error(`${key}: 내비가 없는 뷰를 가리킨다 → ${k}`)
   for (const k of Object.keys(V)) if (!linked.includes(k)) throw new Error(`${key}: 내비에서 못 여는 뷰 → ${k}`)
 
+  const on = only || L.home
+  const shown = only ? [[only, V[only]]] : Object.entries(V)
   return `<div class="fv lay-${key}">
-  ${L.chrome === 'sidebar' ? sidebar(L) : ''}
+  ${L.chrome === 'sidebar' ? sidebar(L, on) : ''}
   <div class="fv-body">
-    ${L.chrome === 'sidebar' ? topbar(L, V[L.home]) : topnav(L)}
-    <main class="fv-main">${Object.entries(V).map(([k, v]) => `<div class="fv-view" data-v="${k}"${
-      k === L.home ? '' : ' hidden'}${v.crumb ? ` data-crumb="${v.crumb.join('|')}"` : ''}>${
+    ${L.chrome === 'sidebar' ? topbar(L, { crumb: V[on].crumb || V[L.home].crumb }) : topnav(L, on)}
+    <main class="fv-main">${shown.map(([k, v]) => `<div class="fv-view" data-v="${k}"${
+      k === on ? '' : ' hidden'}${v.crumb ? ` data-crumb="${v.crumb.join('|')}"` : ''}>${
       v.title ? pageHead(v) : ''}${v.main}</div>`).join('')}</main>
   </div>
 </div>`

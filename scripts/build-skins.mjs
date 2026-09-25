@@ -17,6 +17,8 @@ import {
 } from '../patterns/motion.mjs'
 
 const refs = loadRefs()
+// 레퍼런스(남의 제품 화면 + 가져오지 말 것)는 공개 페이지에 싣지 않는다 — build-index.mjs 의 SHOW_REF 와 같은 이유
+const SHOW_REF = false
 const refsByStyle = id => refs.filter(r => [].concat(r.fm.style || []).includes(id))
 
 const pct = r => `+${Math.round(r * 100)}%`
@@ -138,7 +140,7 @@ for (const s of SKINS) {
     `<a href="${esc(url)}" target="_blank" rel="noopener"><b>${esc(n)}</b> — ${esc(why)}</a>`).join('')}</dd>` : ''
 
   const mine = refsByStyle(s.id)
-  const refBlock = mine.length ? `
+  const refBlock = SHOW_REF && mine.length ? `
   <section class="myrefs">
     <div class="myrefs-h"><h2>내 레퍼런스 <b>${mine.length}</b></h2>
       <p>이 스킨으로 태그한 실제 화면입니다. 외주 브리프에는 <code>가져오지 말 것</code>이 그대로 들어갑니다.</p></div>

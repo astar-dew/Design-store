@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 초기화면 생성 — 디자인 / 패턴 / 레퍼런스 / 견적 (디자인 스킬 · 수주 가이드는 숨김 — SHOW_* 플래그)
+// 초기화면 생성 — 디자인 / 쇼케이스 / 패턴 / 견적 (디자인 스킬 · 레퍼런스 · 수주 가이드는 숨김 — SHOW_* 플래그)
 //   scripts/build-index.mjs && open index.html
 import { writeFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
@@ -16,6 +16,7 @@ import { SKILLBOOK, LEVELS, CHECKLIST, SKILL_COUNT, CHECK_COUNT } from '../patte
 import { TOKENS_CSS } from './theme.mjs'
 import { CONTACT, hasMail, footer, FOOTER_CSS, MAIL_JS } from '../patterns/contact.mjs'
 import { MOTION_BASE_CSS, motionCss, motionInfo, skinVisible } from '../patterns/motion.mjs'
+import { LAYOUTS, LAYOUT_FOR, layoutViews, renderLayout, LAYOUTS_CSS, EXTRA_SPRITE } from '../patterns/layouts.mjs'
 
 const refs = loadRefs()
 const refProblems = lint(refs, loadVocab())
@@ -30,6 +31,9 @@ const SHOW_SKILL = false
 // 수주 가이드는 방문자가 볼 내용이 아니라 내 미팅 메모다 — docs/07-intake-guide.md 로 뺐다.
 // 분야 데이터(domains.mjs)는 디자인 탭 필터가 계속 쓴다. true 로 바꾸면 탭이 돌아온다.
 const SHOW_INTAKE = false
+// 레퍼런스는 남의 제품 화면 + "가져오지 말 것" 메모라 공개 화면에 두지 않는다 — 내 작업 노트로만 쓴다.
+// 방문자에게는 대신 직접 만든 화면을 모은 쇼케이스 탭을 보여준다. true 로 바꾸면 탭이 돌아온다.
+const SHOW_REF = false
 
 /* ---------- 탭 1: 디자인 (스킨 카드) ---------- */
 // 카드 = 제품 사진. 프리뷰 위에 라벨을 얹지 않는다 —
@@ -58,7 +62,7 @@ const skinCards = SKINS.map((s, i) => {
     <div class="skin-meta">
       <div class="sk-eyebrow">
         <span class="sk-domain">${esc(scene.domain)}</span>
-        ${refsByStyle(s.id).length ? `<span class="sk-refn">레퍼런스 ${refsByStyle(s.id).length}</span>` : ''}
+        ${SHOW_REF && refsByStyle(s.id).length ? `<span class="sk-refn">레퍼런스 ${refsByStyle(s.id).length}</span>` : ''}
         <span class="sk-badges">
           <span class="sk-motion" title="모션 ${esc(mi.persona)} · ${esc(mi.sigName)}">모션 ${mi.levelLabel}</span>
           <span class="sk-tone t-${s.base}">${TONE[s.base]}</span>
@@ -78,6 +82,23 @@ const skinCards = SKINS.map((s, i) => {
   </article>`
 }).join('')
 
+
+/* ---------- 탭: 쇼케이스 ----------
+   직접 만든 완성 화면 전부. 스킨 페이지에서 한 장씩 넘겨 봐야 했던 화면을 한 벽에 건다.
+   카드마다 실제 목업을 그 화면 하나만 그려서(renderLayout(key, view)) 폭에 맞춰 줄인다 — 캡처 이미지가 아니라
+   스킨 토큰을 바꾸면 같이 바뀐다. 누르면 그 스킨 페이지의 그 화면(#view)으로 간다. */
+// 순서는 스킨별이 아니라 "각 스킨의 첫 화면 14장 → 두 번째 화면 14장 → …" — 한 스킨이 첫 줄을 다 차지하지 않게
+const shots = SKINS.flatMap((s, si) => {
+  const key = LAYOUT_FOR[s.id]
+  return layoutViews(key).map((v, i) => ({ s, key, v, home: i === 0, order: i * SKINS.length + si }))
+}).sort((a, b) => a.order - b.order)
+const shotCards = shots.map(({ s, key, v, home }) => `
+  <a class="shot sk-${s.id} mode-${s.base}" href="skins/${s.id}.html${home ? '' : '#' + v.id}"
+     data-doms="${SKIN_DOMS[s.id].join(' ')}" aria-label="${esc(s.name)} — ${esc(LAYOUTS[key].domain)} · ${esc(v.label)}">
+    <div class="fv-wrap" aria-hidden="true" inert>${renderLayout(key, v.id)}</div>
+    <div class="shot-meta"><b>${esc(v.label)}</b><span>${esc(LAYOUTS[key].domain)} · ${esc(s.name)}</span></div>
+  </a>`).join('')
+const shotDomCount = id => shots.filter(x => SKIN_DOMS[x.s.id].includes(id)).length
 
 /* ---------- 탭 2: 디자인 스킬 ---------- */
 const skillCards = SKILLBOOK.map(c => `
@@ -126,10 +147,10 @@ ${g.variants.map(v => {
         <h3>${esc(v.name)}</h3>
         <div class="tags">${v.tags.map(t => `<span class="chip">${esc(t)}</span>`).join('')}</div>
         <dl><dt>쓸 때</dt><dd>${esc(v.when)}</dd><dt class="w">주의</dt><dd class="w">${esc(v.watch)}</dd></dl>
-        <div class="linked">${linked.length
+        ${SHOW_REF ? `<div class="linked">${linked.length
         ? `<button class="ref-jump" data-refslugs="${linked.map(r => r.slug).join(' ')}"
              data-reflabel="${esc(v.name)}">내 레퍼런스 ${linked.length}건 →</button>`
-        : '<span class="none">연결된 레퍼런스 없음</span>'}</div>
+        : '<span class="none">연결된 레퍼런스 없음</span>'}</div>` : ''}
       </div>
     </article>`
   }).join('\n')}
@@ -700,6 +721,22 @@ ${FOOTER_CSS}
 ${SCENES_CSS}
 ${SCENES_EXTRA_CSS}
 ${PREVIEW_FULL_CSS}
+${LAYOUTS_CSS}
+/* 쇼케이스 — 목업은 카드 폭에 맞춰 --v(=폭/960)로 통째로 줄어든다 */
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:22px}
+.shot{display:flex;flex-direction:column;text-decoration:none;color:var(--fg);background:var(--panel);
+  border:1px solid var(--line);border-radius:14px;overflow:hidden;
+  content-visibility:auto;contain-intrinsic-size:auto 300px;
+  transition:transform .16s cubic-bezier(.2,.7,.3,1),box-shadow .16s,border-color .16s}
+.shot[hidden]{display:none}
+.shot .fv-wrap{border-bottom:1px solid var(--line);pointer-events:none}
+.shot:hover,.shot:focus-visible{transform:translateY(-4px);border-color:var(--dim);
+  box-shadow:0 2px 4px rgba(0,0,0,.04),0 14px 30px rgba(0,0,0,.09)}
+.shot:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.shot-meta{padding:11px 14px 12px;display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.shot-meta b{font-size:14px;font-weight:600;letter-spacing:-.01em}
+.shot-meta span{font-size:11.5px;color:var(--dim);text-align:right}
+@media (prefers-reduced-motion:reduce){.shot:hover,.shot:focus-visible{transform:none}}
 ${SKINS.map(skinCss).join('\n')}
 ${MOTION_BASE_CSS}
 ${SKINS.map(s => motionCss(s.id)).join('\n')}
@@ -728,15 +765,16 @@ ${WIRE_CSS}
   .skin:hover,.skin:focus-visible{transform:none}
 }
 </style></head><body>
-${ICON_SPRITE}
+${ICON_SPRITE}${EXTRA_SPRITE}
 <div class="top">
   <div class="wrap" style="padding-bottom:0">
     <div class="brand"><h1>A-Dew, design-store</h1><span>디자인 레퍼런스 저장소</span></div>
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" data-p="design" aria-selected="true">디자인 <b>${SKINS.length}</b></button>
+      <button class="tab" role="tab" data-p="showcase" aria-selected="false">쇼케이스 <b>${shots.length}</b></button>
       ${SHOW_SKILL ? `<button class="tab" role="tab" data-p="skill" aria-selected="false">디자인 스킬 <b>${SKILL_COUNT}</b></button>` : ''}
       <button class="tab" role="tab" data-p="pattern" aria-selected="false">패턴 <b>${GROUPS.reduce((n, g) => n + g.variants.length, 0)}</b></button>
-      <button class="tab" role="tab" data-p="ref" aria-selected="false">레퍼런스 <b>${refs.length}</b></button>
+      ${SHOW_REF ? `<button class="tab" role="tab" data-p="ref" aria-selected="false">레퍼런스 <b>${refs.length}</b></button>` : ''}
       ${SHOW_INTAKE ? `<button class="tab" role="tab" data-p="intake" aria-selected="false">수주 가이드</button>` : ''}
       <button class="tab" role="tab" data-p="quote" aria-selected="false">견적</button>
     </div>
@@ -771,6 +809,26 @@ ${ICON_SPRITE}
       <p class="dz-count" role="status">${SKINS.length}종 표시 중</p>
     </div>
     <div class="skins">${skinCards}</div>
+  </section>
+
+  <section id="p-showcase" role="tabpanel" hidden>
+    <div class="panel-head">
+      <div>
+        <h2 class="panel-h">완성 화면 ${shots.length}장</h2>
+        <p class="panel-lede">스킨 ${SKINS.length}종이 각자 맞는 분야에서 <strong>실제로 만든 화면</strong>입니다 — 목록·상세·대시보드·설정까지.
+        화면을 누르면 그 스킨 페이지의 <strong>같은 화면</strong>이 열리고, 거기서 메뉴를 눌러 다른 화면으로 옮겨갈 수 있습니다.
+        마음에 드는 화면이 있으면 그 주소를 그대로 보내 주세요.</p>
+      </div>
+    </div>
+    <div class="dz-bar">
+      <div class="fchips" role="group" aria-label="분야로 거르기">
+        <button class="fchip" type="button" data-sf="all" aria-pressed="true">전체 <b>${shots.length}</b></button>
+        ${DOMAINS.map(d => `<button class="fchip" type="button" data-sf="${d.id}" data-name="${esc(d.name)}"
+       aria-pressed="false">${esc(d.name)} <b>${shotDomCount(d.id)}</b></button>`).join('')}
+      </div>
+      <p class="sf-count" role="status">${shots.length}장 표시 중</p>
+    </div>
+    <div class="shots">${shotCards}</div>
   </section>
 
   ${SHOW_SKILL ? `<section id="p-skill" role="tabpanel" hidden>
@@ -810,7 +868,7 @@ ${ICON_SPRITE}
     ${patternSections}
   </section>
 
-  <section id="p-ref" role="tabpanel" hidden>
+  ${SHOW_REF ? `<section id="p-ref" role="tabpanel" hidden>
     <div class="panel-head">
       <div>
         <h2 class="panel-h">레퍼런스 <span class="panel-sub">${refs.length}건</span></h2>
@@ -828,7 +886,7 @@ ${ICON_SPRITE}
       <p class="ref-count" role="status">${refs.length}건 표시 중</p>
     </div>
     <div class="vgrid">${refCards}</div>` : refEmpty}
-  </section>
+  </section>` : ''}
 
   ${SHOW_INTAKE ? `<section id="p-intake" role="tabpanel" hidden>
     <div class="panel-head"><p class="panel-lede">외주 문의가 왔을 때 클라이언트와 <strong>같이 보는 탭</strong>입니다.
@@ -931,6 +989,22 @@ document.querySelectorAll('.skin').forEach(c => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openSkin(c.dataset.id) }
   })
 })
+
+/* 쇼케이스 필터 — 디자인 탭과 같은 분야 기준 */
+const shotEls = [...document.querySelectorAll('.shot')]
+const sfChips = [...document.querySelectorAll('.fchip[data-sf]')]
+const sfCount = document.querySelector('.sf-count')
+sfChips.forEach(chip => chip.addEventListener('click', () => {
+  const f = chip.dataset.sf
+  sfChips.forEach(x => x.setAttribute('aria-pressed', x === chip))
+  let n = 0
+  for (const c of shotEls) {
+    const on = f === 'all' || c.dataset.doms.split(' ').includes(f)
+    c.hidden = !on
+    if (on) n++
+  }
+  sfCount.textContent = f === 'all' ? n + '장 표시 중' : chip.dataset.name + ' ' + n + '장'
+}))
 
 /* 디자인 탭 필터 — 수주 가이드의 분야(data-doms) × "깔끔한 모션만"(data-motion).
    한 스킨이 여러 분야에 걸칠 수 있다. 위의 라이트/다크 스위치는 보기 방식만 바꾸므로 필터와 무관. */

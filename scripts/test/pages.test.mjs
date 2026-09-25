@@ -63,3 +63,20 @@ test('수주 가이드는 화면에서 빠지고 docs/07-intake-guide.md 로 간
     for (const [sid] of d.skins) assert.ok(md.includes('`' + sid + '`'), `${d.id}: 스킨 ${sid}`)
   }
 })
+
+test('쇼케이스 탭 — 완성 화면마다 카드 하나, 누르면 그 스킨 페이지의 그 화면으로', async () => {
+  const { LAYOUT_FOR, layoutViews } = await import('../../patterns/layouts.mjs')
+  const h = read('index.html')
+  assert.ok(h.includes('data-p="showcase"'), '탭 버튼')
+  const want = SKINS.flatMap(s => layoutViews(LAYOUT_FOR[s.id]).map((v, i) =>
+    `skins/${s.id}.html${i === 0 ? '' : '#' + v.id}`))
+  const got = [...h.matchAll(/<a class="shot [^"]*" href="([^"]+)"/g)].map(m => m[1])
+  assert.deepEqual(got.sort(), want.sort())
+})
+
+test('레퍼런스는 공개 화면에서 뺀다 — 탭과 스킨 페이지의 내 레퍼런스 블록', () => {
+  const h = read('index.html')
+  assert.ok(!h.includes('data-p="ref"'), '레퍼런스 탭')
+  assert.ok(!h.includes('class="ref-jump"'), '패턴 카드의 레퍼런스 버튼')
+  for (const s of SKINS) assert.ok(!read(`skins/${s.id}.html`).includes('class="myrefs"'), s.id)
+})
