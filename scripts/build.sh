@@ -11,6 +11,7 @@ node scripts/build-index.mjs
 node scripts/build-skins.mjs
 node scripts/build-patterns.mjs
 node scripts/build-gallery.mjs
+node scripts/build-intake-doc.mjs
 
 # 빌드 결과까지 확인한다 — CI(pages.yml)도 이 스크립트를 쓰므로 실패하면 배포되지 않는다.
 node --test scripts/test/*.test.mjs

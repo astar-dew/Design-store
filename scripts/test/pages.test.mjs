@@ -50,3 +50,16 @@ test('웹폰트는 그 폰트를 쓰는 스킨의 페이지와 초기화면에�
     assert.equal(read(`skins/${s.id}.html`).includes(maru), (s.fonts || []).some(u => u.includes('maru-buri')), s.id)
   assert.equal(read('index.html').split(maru).length - 1, 1, '초기화면에 한 번만')
 })
+
+test('수주 가이드는 화면에서 빠지고 docs/07-intake-guide.md 로 간다', async () => {
+  const h = read('index.html')
+  assert.ok(!h.includes('data-p="intake"'), '탭 버튼')
+  assert.ok(!h.includes('id="p-intake"'), '패널')
+  const { DOMAINS } = await import('../../patterns/domains.mjs')
+  const md = read('docs/07-intake-guide.md')
+  for (const d of DOMAINS) {
+    assert.ok(md.includes(`## ${d.name}`), d.id)
+    for (const q of d.ask) assert.ok(md.includes(q), `${d.id}: 질문`)
+    for (const [sid] of d.skins) assert.ok(md.includes('`' + sid + '`'), `${d.id}: 스킨 ${sid}`)
+  }
+})

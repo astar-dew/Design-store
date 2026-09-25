@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 초기화면 생성 — 디자인 / 디자인 스킬 / 패턴 / 레퍼런스 / 수주 가이드 / 견적 6개 탭
+// 초기화면 생성 — 디자인 / 패턴 / 레퍼런스 / 견적 (디자인 스킬 · 수주 가이드는 숨김 — SHOW_* 플래그)
 //   scripts/build-index.mjs && open index.html
 import { writeFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
@@ -27,6 +27,9 @@ const refsForTags = tags => refs.filter(r => {
 const pct = r => `+${Math.round(r * 100)}%`
 // 디자인 스킬 탭은 당분간 숨긴다. 데이터(skillbook.mjs)는 그대로 두고 true 로 바꾸면 돌아온다.
 const SHOW_SKILL = false
+// 수주 가이드는 방문자가 볼 내용이 아니라 내 미팅 메모다 — docs/07-intake-guide.md 로 뺐다.
+// 분야 데이터(domains.mjs)는 디자인 탭 필터가 계속 쓴다. true 로 바꾸면 탭이 돌아온다.
+const SHOW_INTAKE = false
 
 /* ---------- 탭 1: 디자인 (스킨 카드) ---------- */
 // 카드 = 제품 사진. 프리뷰 위에 라벨을 얹지 않는다 —
@@ -734,7 +737,7 @@ ${ICON_SPRITE}
       ${SHOW_SKILL ? `<button class="tab" role="tab" data-p="skill" aria-selected="false">디자인 스킬 <b>${SKILL_COUNT}</b></button>` : ''}
       <button class="tab" role="tab" data-p="pattern" aria-selected="false">패턴 <b>${GROUPS.reduce((n, g) => n + g.variants.length, 0)}</b></button>
       <button class="tab" role="tab" data-p="ref" aria-selected="false">레퍼런스 <b>${refs.length}</b></button>
-      <button class="tab" role="tab" data-p="intake" aria-selected="false">수주 가이드</button>
+      ${SHOW_INTAKE ? `<button class="tab" role="tab" data-p="intake" aria-selected="false">수주 가이드</button>` : ''}
       <button class="tab" role="tab" data-p="quote" aria-selected="false">견적</button>
     </div>
   </div>
@@ -827,13 +830,13 @@ ${ICON_SPRITE}
     <div class="vgrid">${refCards}</div>` : refEmpty}
   </section>
 
-  <section id="p-intake" role="tabpanel" hidden>
+  ${SHOW_INTAKE ? `<section id="p-intake" role="tabpanel" hidden>
     <div class="panel-head"><p class="panel-lede">외주 문의가 왔을 때 클라이언트와 <strong>같이 보는 탭</strong>입니다.
     분야를 고르면 물어볼 질문 → 그 분야의 관례 레이아웃 → 어울리는 스킨 → 필수 화면 순서로 좁혀지고,
     마지막 버튼으로 견적 탭에 그대로 넘어갑니다. 데이터는 <code>patterns/domains.mjs</code>.</p></div>
     <div class="dom-chips">${domainChips}</div>
     ${domainPanels}
-  </section>
+  </section>` : ''}
 
   <section id="p-quote" role="tabpanel" hidden>
     <div class="panel-head"><p class="panel-lede">화면을 고르면 견적이 계산됩니다.

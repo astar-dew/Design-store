@@ -17,23 +17,23 @@ scripts/build.sh && open index.html      # 초기화면
 scripts/add-ref.sh <slug> <이미지...>     # 레퍼런스 1건 등록
 ```
 
-## 초기화면 = 6개 탭
+## 초기화면 = 4개 탭
 
 `index.html` 하나가 입구다. 왼쪽부터 순서대로 고르면 된다.
+**디자인 스킬**과 **수주 가이드**는 방문자가 볼 내용이 아니라서 숨겨 두었다 (`scripts/build-index.mjs` 의 `SHOW_SKILL` · `SHOW_INTAKE`).
+수주 가이드는 [`docs/07-intake-guide.md`](docs/07-intake-guide.md) 로 빌드 때마다 생성된다.
 
 | 탭 | 무엇 | 다루는 것 | 데이터 |
 |---|---|---|---|
 | **디자인** | 스타일 스킨 14종 | 무드 (색·타이포·질감·질) | `patterns/skins.mjs` |
-| **디자인 스킬** | 품질 기준 10분야 66항목 + 검수 체크리스트 | 잘 만들었는가 | `patterns/skillbook.mjs` |
 | **패턴** | 기본 레이아웃 변형 34종 | 형태 (레이아웃·화면·컴포넌트) | `patterns/patterns.mjs` |
 | **레퍼런스** | 실제로 보고 저장한 화면 | 형태 + 무드 둘 다 | `references/<slug>/` |
-| **수주 가이드** | 9개 분야별 질문·관례 레이아웃·스킨 추천 | 요구 파악 | `patterns/domains.mjs` |
 | **견적** | 화면·스킨·옵션으로 금액 계산 | 돈 | `patterns/pricing.mjs` |
 
 **디자인 탭**의 카드 필터는 **분야**(쇼핑몰·대시보드·교육…)로 건다.
 라이트/다크는 디자이너의 축이지 클라이언트의 축이 아니다 — 클라이언트는 "쇼핑몰 하려고요"라고 말한다.
-필터의 분야↔스킨 매핑은 **수주 가이드 탭(`domains.mjs`)의 추천 스킨을 그대로 쓴다** —
-두 탭이 어긋나면 안 되기 때문이고, 어느 분야에도 없는 스킨이 생기면 빌드가 실패한다.
+필터의 분야↔스킨 매핑은 **수주 가이드(`domains.mjs`)의 추천 스킨을 그대로 쓴다** —
+가이드와 필터가 어긋나면 안 되기 때문이고, 어느 분야에도 없는 스킨이 생기면 빌드가 실패한다.
 톤은 카드의 배지(라이트/다크)와 상단 스위치가 담당한다.
 
 **디자인 탭**의 카드는 각 스킨이 **가장 잘 맞는 분야의 화면 조각**을 보여준다
@@ -147,6 +147,7 @@ scripts/
 | `scripts/build-patterns.mjs` | → `patterns.html` (기본 패턴 카탈로그 단독) |
 | `scripts/build-skins.mjs` | → `skins/<id>.html` (스킨 전용 페이지 — 화면 전환 + 상태 데모) |
 | `scripts/build-gallery.mjs` | → `gallery.html` (축별 정밀 필터 — 탭은 훑어보기, 갤러리는 파고들기) |
+| `scripts/build-intake-doc.mjs` | → `docs/07-intake-guide.md` (수주 가이드 — `domains.mjs` 에서 생성, 손으로 고치지 말 것) |
 | `scripts/build-packet.mjs --out briefs/<이름> --slugs a,b` | → 자체완결 `packet.html` (외주 전달용) |
 
 의존성 없음 (node 18+, `cwebp`만 필요 — `brew install webp`).
