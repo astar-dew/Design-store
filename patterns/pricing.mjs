@@ -61,7 +61,7 @@ export const SKIN_TIER = {
   'neon-engineering': { factor: 1.30, why: '격자·발광 레이어와 밀도 높은 상태의 스캔성 검증' },
   'blueprint': { factor: 1.20, why: '선 굵기 3단 체계를 전 컴포넌트에 일관 적용' },
   'oled-void': { factor: 1.10, why: '발광 튜닝과 순흑 잔상 대응' },
-  'ink-cream': { factor: 1.15, why: '세리프 조판과 괘선 규칙에 손이 감' },
+  'ink-cream': { factor: 1.15, why: '한글 부리 헤드라인 조판과 웹폰트 대체 상태까지 챙겨야 함' },
   'sand-clay': { factor: 1.20, why: '이중 섀도우 튜닝, 라운드 규칙 재설계' },
   'deep-forest': { factor: 1.15, why: '골드 액센트의 대비 확보가 화면마다 필요' },
   'navy-signal': { factor: 1.05, why: '표준 구조에 액센트 규칙만 얹음' },

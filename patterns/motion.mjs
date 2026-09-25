@@ -40,12 +40,17 @@ export const SIGNATURES = {
 .fv-btn:hover,.db.pri:hover:not(:disabled){filter:none;background:var(--s-bg);color:var(--s-fg);
   box-shadow:inset 0 0 0 2px var(--s-fg)}`,
   },
-  'rule-draw': {
-    name: '괘선 긋기', desc: '기사 머리의 괘선이 왼쪽에서 오른쪽으로 그어진다',
-    targets: ['lay-kick'],
-    css: `.lay-kick{display:inline-block}
-.lay-kick::after{content:'';display:block;height:1px;margin-top:6px;background:currentColor;transform-origin:left}
-.m-play .lay-kick::after{animation:m-draw 700ms var(--m-ease) 160ms both}`,
+  'cover-focus': {
+    name: '커버 포커스', desc: '커버가 살짝 크고 흐린 상태에서 제자리로 선명해진다. 본문을 내리면 목차의 읽기 진도가 따라 찬다',
+    targets: ['lay-hero'],
+    css: `.m-play .lay-hero svg{animation:m-focus 900ms var(--m-ease) both}`,
+    // 진도 바는 transform 으로만 늘린다 — width 를 바꾸면 스크롤마다 레이아웃을 다시 잰다
+    init: `const art = fv.querySelector('.lay-art article'), bar = fv.querySelector('.lay-read i')
+if (!art || !bar) return
+art.addEventListener('scroll', () => {
+  const max = art.scrollHeight - art.clientHeight
+  bar.style.transform = 'scaleX(' + (max > 0 ? Math.max(.18, art.scrollTop / max) : 1) + ')'
+}, { passive: true })`,
   },
   'focus-ring': {
     name: '굵은 포커스 링', desc: '움직이지 않는다. 키보드 포커스만 두껍고 분명하게 — 안 움직이는 게 콘셉트',
@@ -158,7 +163,7 @@ for (const b of fv.querySelectorAll('.fv-view:not([hidden]) .fv-kpi b')) {
 export const MOTION_FOR = {
   'cobalt-gray': { persona: 'restrained', sig: 'accent-underline' },
   'stark-mono': { persona: 'restrained', sig: 'headline-reveal' },
-  'ink-cream': { persona: 'restrained', sig: 'rule-draw' },
+  'ink-cream': { persona: 'restrained', sig: 'cover-focus' },
   // 공공 디자인 시스템은 움직임 자체가 비용이다 — 등장 모션 0, 포커스만 강하게.
   'civic-blue': { persona: 'restrained', sig: 'focus-ring', still: true },
   'black-yellow': { persona: 'precise', sig: 'block-fill' },
@@ -200,7 +205,7 @@ export const MOTION_BASE_CSS = `
 @keyframes m-rise{from{opacity:0;transform:translateY(12px)}}
 @keyframes m-pop{from{opacity:0;transform:scale(.97)}}
 @keyframes m-reveal{from{clip-path:inset(0 0 100% 0);transform:translateY(.25em)}}
-@keyframes m-draw{from{transform:scaleX(0)}}
+@keyframes m-focus{from{opacity:.4;transform:scale(1.06);filter:blur(6px)}}
 @keyframes m-stroke{from{stroke-dashoffset:1000}to{stroke-dashoffset:0}}
 @keyframes m-sheen{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 @keyframes m-grow{from{transform:scaleX(0)}}

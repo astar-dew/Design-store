@@ -7,7 +7,7 @@ import { REPO, loadRefs, loadVocab, lint, esc, md } from './lib.mjs'
 import { GROUPS } from '../patterns/patterns.mjs'
 import { WIRE_CSS } from '../patterns/wire-css.mjs'
 import {
-  SKINS, skinCss, modeVars, PREVIEW_FULL, PREVIEW_FULL_CSS, ICON_SPRITE,
+  SKINS, skinCss, fontLinks, modeVars, PREVIEW_FULL, PREVIEW_FULL_CSS, ICON_SPRITE,
 } from '../patterns/skins.mjs'
 import { SCENES, SCENES_CSS, SCENES_EXTRA_CSS } from '../patterns/scenes.mjs'
 import { DOMAINS } from '../patterns/domains.mjs'
@@ -320,6 +320,7 @@ const html = `<!doctype html>
 <html lang="ko"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>A-Dew, design-store</title>
+${fontLinks(SKINS)}
 <style>
 ${TOKENS_CSS}
 *{box-sizing:border-box}

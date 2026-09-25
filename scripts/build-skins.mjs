@@ -7,7 +7,7 @@
 import { writeFileSync, mkdirSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { REPO, loadRefs, esc, md } from './lib.mjs'
-import { SKINS, skinCss, modeVars, PREVIEW_FULL_CSS, ICON_SPRITE } from '../patterns/skins.mjs'
+import { SKINS, skinCss, fontLinks, modeVars, PREVIEW_FULL_CSS, ICON_SPRITE } from '../patterns/skins.mjs'
 import { LAYOUTS, LAYOUT_FOR, renderLayout, LAYOUTS_CSS, EXTRA_SPRITE } from '../patterns/layouts.mjs'
 import { SKIN_TIER, darkRate } from '../patterns/pricing.mjs'
 import { TOKENS_CSS } from './theme.mjs'
@@ -166,6 +166,7 @@ for (const s of SKINS) {
 <html lang="ko"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(s.name)} — A-Dew, design-store</title>
+${fontLinks([s])}
 <style>
 ${TOKENS_CSS}
 *{box-sizing:border-box}

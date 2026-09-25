@@ -369,19 +369,39 @@ LAYOUTS.article = {
   main: `
   <div class="lay-art">
     <article>
-      <small class="lay-kick">에세이 · 8월호</small>
+      <figure class="lay-hero">
+        <svg viewBox="0 0 600 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <circle class="c-sun" cx="448" cy="74" r="30"/>
+          <path class="c-h1" d="M0 142C70 112 140 124 212 98S350 58 430 96s130 26 170 8V220H0Z"/>
+          <path class="c-h2" d="M0 172c92-26 170-10 262-34s158-18 240 10 74 10 98 6V220H0Z"/>
+          <path class="c-h3" d="M0 198c120-16 212-4 318-18s190-4 282 10V220H0Z"/>
+        </svg>
+        <figcaption><span class="lay-chip-k">에세이 · 8월호</span><small>사진 · 여름의 끝, 북한산</small></figcaption>
+      </figure>
       <h1 class="num">계절의 감각을<br>기록하는 법</h1>
+      <p class="lay-dek">매미가 잦아들고 풀벌레가 자리를 바꾸는 며칠. 우리가 매년 놓치는 그 틈을 적어 두는 방법에 대하여.</p>
       <div class="lay-by">${av('진', 5, 'sm')}<div><b>박진우</b><small>2026. 8. 17 · 읽는 시간 7분</small></div></div>
       <p>여름의 끝은 소리로 먼저 온다. 매미가 잦아들고 풀벌레가 자리를 바꾸는 그 며칠을 우리는 대개 놓친다.</p>
-      <blockquote>우리가 놓치는 것은 시간이 아니라 시간의 질감이다.</blockquote>
+      <blockquote>우리가 놓치는 것은 시간이 아니라, 시간의 질감이다.</blockquote>
       <p>기록은 기억을 대신하지 않는다. 다만 기억이 돌아올 자리를 만들어 둔다. 사소한 문장 하나가 그 해의 온도를 되살린다.</p>
-      <figure class="lay-fig">${ic('layers', 'lay-ph')}<figcaption>사진 · 여름의 끝, 북한산</figcaption></figure>
       <p>계절을 적는 일은 결국 자신을 적는 일이다. 같은 팔월을 두 번 살 수 없으므로.</p>
+      <div class="lay-next">
+        <h4>다음에 읽을 글</h4>
+        <div class="lay-next-g">
+          ${[['n1', '인터뷰', '30년째 같은 화병을 굽는 사람', '9분'],
+          ['n2', '리뷰', '고요의 형태 — 비어 있음을 전시하는 법', '5분']]
+          .map(([k, cat, t, min]) => `<div class="fv-card lay-next-c"><i class="lay-next-i ${k}"></i>
+            <div><small>${cat} · ${min}</small><b>${t}</b></div></div>`).join('')}
+        </div>
+      </div>
     </article>
     <aside class="lay-toc">
-      <h4>목차</h4>
-      <ul><li class="on">소리로 오는 계절</li><li>기록의 자리</li><li>같은 팔월은 없다</li></ul>
-      <div class="lay-share"><span class="fv-btn ghost">${ic('heart')}저장</span></div>
+      <div class="lay-toc-c">
+        <h4>이 글의 흐름</h4>
+        <div class="lay-read" aria-hidden="true"><i></i></div>
+        <ol><li class="on"><em>01</em>소리로 오는 계절</li><li><em>02</em>기록의 자리</li><li><em>03</em>같은 팔월은 없다</li></ol>
+      </div>
+      <div class="lay-share"><span class="fv-btn">${ic('heart')}저장</span><span class="fv-btn ghost">공유</span></div>
     </aside>
   </div>`,
   views: {
@@ -1819,38 +1839,79 @@ export const LAYOUTS_CSS = `
 .lay-page span{padding:calc(var(--v) * 4) calc(var(--v) * 10);border-radius:calc(var(--v) * var(--s-r))}
 .lay-page span.on{background:var(--s-nav-on);color:var(--s-nav-on-fg)}
 
-/* 아티클 */
-.lay-art{display:grid;grid-template-columns:minmax(0,1fr) calc(var(--v) * 176);
-  gap:calc(var(--v) * 34);flex:1;min-height:0;overflow:hidden}
-.lay-art article{min-width:0}
+/* 아티클 — 본문은 안에서 스크롤하고 목차는 제자리에 있다 ("본문 + 목차 고정") */
+.lay-art{display:grid;grid-template-columns:minmax(0,1fr) calc(var(--v) * 184);
+  gap:calc(var(--v) * 36);flex:1;min-height:0;overflow:hidden}
+.lay-art article{min-width:0;overflow-y:auto;scrollbar-width:none;
+  padding-right:calc(var(--v) * 4)}
+.lay-art article::-webkit-scrollbar{display:none}
 .lay-kick{font-size:calc(var(--v) * 11.5);letter-spacing:.14em;display:block;
   margin-bottom:calc(var(--v) * 9)}
+/* 커버 — 사진 대신 스킨 토큰으로 그린 풍경. 모드가 바뀌면 같이 바뀐다 */
+.lay-hero{margin:0 0 calc(var(--v) * 22);position:relative;overflow:hidden;
+  border-radius:calc(var(--v) * var(--s-r) * 1.4);height:calc(var(--v) * 188);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--s-acc) 20%,var(--s-sur)),
+    color-mix(in srgb,var(--s-acc) 8%,var(--s-bg)))}
+.lay-hero svg{position:absolute;inset:0;width:100%;height:100%}
+.lay-hero .c-sun{fill:color-mix(in srgb,var(--s-acc) 60%,var(--s-sur))}
+.lay-hero .c-h1{fill:color-mix(in srgb,var(--s-fg) 14%,color-mix(in srgb,var(--s-acc) 12%,var(--s-bg)))}
+.lay-hero .c-h2{fill:color-mix(in srgb,var(--s-fg) 28%,color-mix(in srgb,var(--s-acc) 14%,var(--s-bg)))}
+.lay-hero .c-h3{fill:color-mix(in srgb,var(--s-fg) 46%,color-mix(in srgb,var(--s-acc) 16%,var(--s-bg)))}
+.lay-hero figcaption{position:absolute;inset:auto calc(var(--v) * 14) calc(var(--v) * 12);
+  display:flex;align-items:center;justify-content:space-between}
+.lay-hero figcaption small{font-size:calc(var(--v) * 10);white-space:nowrap;color:var(--s-bg);opacity:.9}
+.lay-chip-k{font-size:calc(var(--v) * 10.5);white-space:nowrap;font-weight:600;letter-spacing:.02em;
+  padding:calc(var(--v) * 4) calc(var(--v) * 10);border-radius:999px;
+  background:var(--s-sur);color:var(--s-fg)}
 .lay-art h1{margin:0;font-family:var(--s-head-font);font-weight:var(--s-head-w);
   font-size:calc(var(--v) * 40);line-height:1.18;letter-spacing:var(--s-track)}
+.lay-dek{font-size:calc(var(--v) * 14.5)!important;color:var(--s-dim);
+  margin:calc(var(--v) * 12) 0 0!important;line-height:1.6!important}
 .lay-by{display:flex;align-items:center;gap:calc(var(--v) * 9);
   margin:calc(var(--v) * 16) 0;padding-bottom:calc(var(--v) * 14);
   border-bottom:1px solid var(--s-line)}
 .lay-by b{font-size:calc(var(--v) * 12);display:block}
 .lay-by small{font-size:calc(var(--v) * 10.5);display:block}
-.lay-art p{margin:0 0 calc(var(--v) * 12);font-size:calc(var(--v) * 13.5);line-height:1.75;
-  max-width:66ch}
-.lay-art blockquote{margin:calc(var(--v) * 16) 0;padding-left:calc(var(--v) * 16);
-  border-left:3px solid var(--s-acc);font-size:calc(var(--v) * 17);line-height:1.6;
-  font-style:italic;color:var(--s-dim)}
-.lay-fig{margin:calc(var(--v) * 16) 0;display:flex;flex-direction:column;
-  align-items:center;gap:calc(var(--v) * 7)}
-.lay-fig .lay-ph{width:100%;height:calc(var(--v) * 84);
-  border-radius:calc(var(--v) * var(--s-r));
-  background:color-mix(in srgb,var(--s-acc) 10%,var(--s-bg));padding:calc(var(--v) * 24)}
-.lay-fig figcaption{font-size:calc(var(--v) * 10.5);color:var(--s-dim)}
-.lay-toc{border-left:1px solid var(--s-line);padding-left:calc(var(--v) * 20)}
-.lay-toc h4{margin:0 0 calc(var(--v) * 11);font-size:calc(var(--v) * 10.5);
-  color:var(--s-dim);letter-spacing:.08em;font-weight:600}
-.lay-toc ul{list-style:none;margin:0 0 calc(var(--v) * 18);padding:0;
-  display:flex;flex-direction:column;gap:calc(var(--v) * 9)}
-.lay-toc li{font-size:calc(var(--v) * 12);color:var(--s-dim);
-  padding-left:calc(var(--v) * 11);border-left:2px solid transparent}
-.lay-toc li.on{color:var(--s-acc);border-left-color:var(--s-acc)}
+.lay-art p{margin:0 0 calc(var(--v) * 12);font-size:calc(var(--v) * 13.5);line-height:1.8;
+  max-width:62ch}
+/* 풀쿼트 — 막대 대신 크기와 여백으로 강조한다 */
+.lay-art blockquote{margin:calc(var(--v) * 22) 0;font-family:var(--s-head-font);
+  font-size:calc(var(--v) * 22);line-height:1.45;letter-spacing:var(--s-track);color:var(--s-fg)}
+.lay-art blockquote::before{content:'“';display:block;color:var(--s-acc);
+  font-size:calc(var(--v) * 40);line-height:.6;margin-bottom:calc(var(--v) * 6)}
+.lay-next{margin-top:calc(var(--v) * 24);padding-top:calc(var(--v) * 18);
+  border-top:1px solid var(--s-line)}
+.lay-next h4,.lay-toc h4{margin:0 0 calc(var(--v) * 12);font-size:calc(var(--v) * 10.5);
+  color:var(--s-dim);letter-spacing:.06em;font-weight:600}
+.lay-next-g{display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--v) * 12)}
+.lay-next-c{display:flex;gap:calc(var(--v) * 12);align-items:center;cursor:pointer;
+  padding:calc(var(--v) * 10)!important}
+.lay-next-i{width:calc(var(--v) * 56);height:calc(var(--v) * 56);flex:none;
+  border-radius:calc(var(--v) * var(--s-r) * .8)}
+.lay-next-i.n1{background:linear-gradient(140deg,color-mix(in srgb,var(--s-acc) 45%,var(--s-sur)),
+  color-mix(in srgb,var(--s-fg) 30%,var(--s-bg)))}
+.lay-next-i.n2{background:radial-gradient(circle at 70% 30%,color-mix(in srgb,var(--s-acc) 30%,var(--s-sur)) 0 30%,
+  color-mix(in srgb,var(--s-fg) 12%,var(--s-bg)) 31%)}
+.lay-next-c small{font-size:calc(var(--v) * 10);color:var(--s-dim);display:block}
+.lay-next-c b{font-size:calc(var(--v) * 12.5);line-height:1.45;display:block;
+  margin-top:calc(var(--v) * 3);font-weight:600}
+.lay-toc{display:flex;flex-direction:column;gap:calc(var(--v) * 12)}
+.lay-toc-c{background:var(--s-sur);border:1px solid var(--s-line);
+  border-radius:calc(var(--v) * var(--s-r));padding:calc(var(--v) * 16)}
+.lay-read{height:calc(var(--v) * 3);border-radius:999px;background:var(--s-line);
+  overflow:hidden;margin-bottom:calc(var(--v) * 14)}
+.lay-read i{display:block;height:100%;width:100%;background:var(--s-acc);
+  transform:scaleX(.18);transform-origin:left;transition:transform .2s linear}
+.lay-toc ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;
+  gap:calc(var(--v) * 10)}
+.lay-toc li{font-size:calc(var(--v) * 12);color:var(--s-dim);display:flex;
+  gap:calc(var(--v) * 9);align-items:baseline}
+.lay-toc li em{font-style:normal;font-size:calc(var(--v) * 10);font-variant-numeric:tabular-nums;
+  color:var(--s-dim);opacity:.7}
+.lay-toc li.on{color:var(--s-fg);font-weight:600}
+.lay-toc li.on em{color:var(--s-acc);opacity:1}
+.lay-share{display:flex;gap:calc(var(--v) * 8)}
+.lay-share .fv-btn{flex:1;justify-content:center}
 
 /* 플레이어 */
 .lay-now{display:flex;gap:calc(var(--v) * 22);align-items:flex-end;flex:none;

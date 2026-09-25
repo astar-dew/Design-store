@@ -8,6 +8,7 @@
 // 각 스킨은 라이트/다크 **쌍**으로 정의된다.
 //   base  : vars 가 어느 모드인지 ('light' | 'dark')
 //   alt    : 반대 모드에서 덮어쓸 값 (vars 위에 병합)
+//   fonts  : 웹폰트 CSS 주소 (선택) — 이 스킨이 들어가는 페이지에만 붙는다
 //   extra  : 두 모드 공통 CSS
 //   altExtra: 반대 모드에서만 덮어쓸 CSS (색을 하드코딩한 규칙이 있을 때만)
 //
@@ -204,38 +205,44 @@ export const SKINS = [
   {
     id: 'ink-cream',
     name: '잉크 크림',
-    sub: '크림 종이 위 잉크. 세리프 헤드라인과 얇은 괘선',
-    lineage: '에디토리얼 + 클래식 인쇄',
+    sub: '아이보리 위 현대 세리프. 헤드라인은 부리, 본문은 산세리프',
+    lineage: '모던 에디토리얼 + 뉴스레터',
     bench: [
-      ['Anthropic', 'https://www.anthropic.com', '크림 배경 + 세리프로 신뢰감을 만든 최근 대표 사례'],
+      ['Anthropic', 'https://www.anthropic.com', '웜 뉴트럴 배경 + 세리프 헤드라인 + 클레이 액센트의 대표 사례'],
       ['Stripe Press', 'https://press.stripe.com', '출판물급 조판을 웹으로 옮긴 기준'],
-      ['Aesop', 'https://www.aesop.com', '세리프 커머스 — UI 크롬은 산세리프로 두는 관례를 지킨 예'],
+      ['롱블랙', 'https://www.longblack.co', '한글 부리 헤드라인과 산세리프 본문을 섞는 국내 관례'],
     ],
-    fits: '매거진·브랜드 저널·긴 글 서비스, 프리미엄 브랜드 커머스 — 읽는 시간이 긴 곳',
-    watch: '기능형 화면에서 밀도가 안 나온다. 데이터 많은 테이블 화면엔 쓰지 말 것. 그리고 UI 라벨까지 세리프로 돌리자는 요청은 거절해야 한다 — 작은 글자에서 획이 뭉개진다.',
+    fits: '매거진·브랜드 저널·뉴스레터, 프리미엄 브랜드 커머스 — 읽는 시간이 긴 곳',
+    watch: '세리프는 헤드라인과 풀쿼트까지만. 본문·UI 라벨까지 부리로 돌리자는 요청은 거절해야 한다 — 작은 글자에서 획이 뭉개지고 다시 올드해진다. 그리고 웹폰트(마루 부리)가 늦게 오면 헤드라인이 잠깐 시스템 명조로 보인다 — 헤드라인 줄바꿈을 폰트가 바뀌어도 안 깨지게 잡을 것.',
     base: 'light',
-    // 대비 개선: dim 4.22 → 5.34, line 1.46 → 2.12 (경계가 밑줄 하나뿐이라 항목 구분이 안 됐다)
+    // 누런 크림(#f7f1e3)·벽돌 액센트는 종이 신문처럼 읽혔다. 채도를 뺀 아이보리와 클레이로 옮긴다.
     vars: {
-      bg: '#f7f1e3', sur: '#ffffff', line: '#bfb193', fg: '#14110d', dim: '#6b6252',
-      acc: '#8b2f1d', accFg: '#ffffff', sideBg: '#f2ebd9', navOn: '#e6dcc4', navOnFg: '#14110d',
-      bw: '1', r: '2', sh: 'none', font: 'Inter,system-ui,sans-serif',
-      headFont: 'Instrument Serif,Iowan Old Style,Georgia,serif', headWeight: '400', tracking: '-0.005em',
+      bg: '#f6f4ef', sur: '#ffffff', line: '#cfc8ba', fg: '#1b1916', dim: '#6b655b',
+      acc: '#b04a25', accFg: '#ffffff', sideBg: '#f1eee7', navOn: '#ece7dd', navOnFg: '#1b1916',
+      bw: '1', r: '12', sh: '0 1px 2px rgba(27,25,22,.04),0 10px 28px -16px rgba(27,25,22,.18)',
+      font: 'Pretendard Variable,Pretendard,system-ui,sans-serif',
+      // Instrument Serif 에는 한글이 없다 — 한글은 뒤의 MaruBuri 로 떨어진다
+      headFont: 'Instrument Serif,MaruBuri,Georgia,serif', headWeight: '400', tracking: '-0.02em',
     },
     alt: {
-      bg: '#131009', sur: '#1c180f', line: '#4a4230', fg: '#f2ecdc', dim: '#9d947c',
-      acc: '#d98a63', accFg: '#131009', sideBg: '#17130c', navOn: '#2a2417', navOnFg: '#f2ecdc',
+      bg: '#141311', sur: '#1d1b18', line: '#46413a', fg: '#efebe4', dim: '#a39c90',
+      acc: '#e3875f', accFg: '#141311', sideBg: '#171614', navOn: '#2a2723', navOnFg: '#efebe4',
+      sh: '0 1px 2px rgba(0,0,0,.4)',
     },
+    // 이 스킨이 들어가는 페이지에만 <link> 로 붙는다 (fontLinks)
+    fonts: [
+      'https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap',
+      'https://hangeul.pstatic.net/hangeul_static/css/maru-buri.css',
+      'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css',
+    ],
     extra: `.pv-side{border-right:1px solid var(--s-line)}
 .pv-kpi,.pv-panel{border:1px solid var(--s-line)}
-.pv-head h4{font-size:calc(var(--u) * 19);letter-spacing:0}
-.ic-quote,.ic-tag b{font-family:var(--s-head-font)}`,
-    // 세리프는 헤드라인과 **산문**에만. UI 크롬(내비·라벨·버튼·표)은 산세리프로 둔다 —
-    // 작은 크기의 세리프는 획이 뭉개져서 "예쁘지만 안 읽히는" 화면이 된다.
+.pv-head h4{font-size:calc(var(--u) * 19);letter-spacing:0}`,
+    // 세리프는 헤드라인과 풀쿼트에만. 본문과 UI 크롬(내비·라벨·버튼·표)은 산세리프로 둔다.
     extraFull: `.fv-side{border-right:var(--fv-bd)}
 .fv-h h2{font-size:calc(var(--v) * 26)}
-.fv-card,.fv-kpi{background:var(--s-sur);border:var(--fv-bd);border-radius:0;box-shadow:none}
-.lay-art article p,.lay-art blockquote,.lay-feat p,.lay-irow span,.lay-rvw p{
-  font-family:var(--s-head-font);font-size:calc(var(--v) * 13);line-height:1.7}
+.fv-card,.fv-kpi{background:var(--s-sur);border:var(--fv-bd);box-shadow:var(--s-sh)}
+.lay-feat h1,.lay-rvw h3{font-family:var(--s-head-font);font-weight:var(--s-head-w)}
 .fv-av{background:var(--s-acc)}`,
   },
   {
@@ -514,6 +521,13 @@ const varBlock = v => `
   --s-nav-on:${v.navOn}; --s-nav-on-fg:${v.navOnFg};
   --s-bw:${v.bw}; --s-r:${v.r}; --s-sh:${v.sh}; --s-font:${v.font}; --s-head-font:${v.headFont};
   --s-head-w:${v.headWeight}; --s-track:${v.tracking};`
+
+/** 스킨들이 쓰는 웹폰트 → <link> 태그 (중복 제거) */
+export function fontLinks(skins) {
+  const urls = [...new Set(skins.flatMap(s => s.fonts || []))]
+  // 폰트 CSS 가 막혀도 font-family 뒤쪽 시스템 폰트로 떨어질 뿐 레이아웃은 그대로다
+  return urls.map(u => `<link rel="stylesheet" href="${u}">`).join('\n')
+}
 
 /**
  * 스킨 하나 → 스코프된 CSS (라이트/다크 두 벌)

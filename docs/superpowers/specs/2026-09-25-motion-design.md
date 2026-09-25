@@ -39,7 +39,7 @@
 |---|---|---|---|
 | cobalt-gray | 절제 | 액센트 밑줄이 슥 그어짐 | `.fv-link`, `.fv-nav.is-on` |
 | stark-mono | 절제 | 헤드라인이 가림막 뒤에서 드러남 + 호버 흑백 반전 | `.mono-h`, `.fv-btn` |
-| ink-cream | 절제 | 괘선이 좌→우로 그려짐 | `.lay-art` 의 `.lay-kick` 아래 선(`::after`) |
+| ink-cream | 절제 | 커버가 흐림→선명 + 스크롤 읽기 진도 (2026-09-25 리프레시로 괘선 긋기에서 교체) | `.lay-hero`, `.lay-read` |
 | civic-blue | 절제 (**등장 모션 0**) | 굵은 포커스 링 강조 — 안 움직이는 게 콘셉트 | `:focus-visible` 전체 |
 | black-yellow | 정밀 | 호버 시 노랑 블록이 옆에서 밀려와 채움 | `.fv-btn` |
 | blueprint | 정밀 | 도면 선이 그려짐 + 커서 좌표 표시 | `.lay-cad` (svg stroke-dashoffset) |

@@ -43,3 +43,10 @@ test('스킨 페이지 맨 위 헤더를 누르면 메인으로 간다', () => {
     assert.match(h, /<header class="site">[\s\S]*?<a class="brand" href="\.\.\/index\.html"/, s.id)
   }
 })
+
+test('웹폰트는 그 폰트를 쓰는 스킨의 페이지와 초기화면에만 붙는다', () => {
+  const maru = 'hangeul.pstatic.net/hangeul_static/css/maru-buri.css'
+  for (const s of SKINS)
+    assert.equal(read(`skins/${s.id}.html`).includes(maru), (s.fonts || []).some(u => u.includes('maru-buri')), s.id)
+  assert.equal(read('index.html').split(maru).length - 1, 1, '초기화면에 한 번만')
+})

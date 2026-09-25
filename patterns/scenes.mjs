@@ -245,25 +245,42 @@ scenes['ink-cream'] = {
   <div class="ic-art">
     <small class="ic-kicker">에세이 · 8월호</small>
     <b class="num">계절의 감각을<br>기록하는 법</b>
-    <small class="ic-by">글 · 박진우</small>
-    <p class="ic-quote">우리가 놓치는 것은 시간이 아니라<br>시간의 질감이다.</p>
+    <p class="ic-dek">우리가 놓치는 것은 시간이 아니라,<br>시간의 질감이다.</p>
+    <small class="ic-by"><i></i>박진우 · 7분</small>
   </div>
-  <div class="pv-kpi ic-tag"><b>№ 42</b></div>
+  <div class="ic-cover" aria-hidden="true">
+    <svg viewBox="0 0 170 210" preserveAspectRatio="xMidYMid slice">
+      <circle class="c-sun" cx="120" cy="62" r="17"/>
+      <path class="c-h1" d="M0 120c22-14 44-10 66-22s46-20 70-4 22 10 34 6V210H0Z"/>
+      <path class="c-h2" d="M0 150c26-12 50-4 78-16s50-8 92 6V210H0Z"/>
+      <path class="c-h3" d="M0 178c40-8 76-2 112-10s40 0 58 4V210H0Z"/>
+    </svg>
+  </div>
   <span class="pv-btn ic-btn">이어서 읽기</span>`,
 }
 css.push(`
-.ic-art{position:absolute;left:calc(var(--u) * 52);top:calc(var(--u) * 40);z-index:2;
-  width:calc(var(--u) * 300)}
-.ic-kicker{font-size:calc(var(--u) * 12);letter-spacing:.14em;display:block;
-  margin-bottom:calc(var(--u) * 10)}
-.ic-art b{font-size:calc(var(--u) * 34);display:block;line-height:1.22}
-.ic-by{font-size:calc(var(--u) * 12);display:block;margin:calc(var(--u) * 10) 0 calc(var(--u) * 16)}
-.ic-quote{margin:0;padding-left:calc(var(--u) * 14);font-size:calc(var(--u) * 14);
-  line-height:1.6;color:var(--s-dim);border-left:2px solid var(--s-acc);font-style:italic}
-.ic-tag{right:calc(var(--u) * 36);top:calc(var(--u) * 34);z-index:3;
-  padding:calc(var(--u) * 10) calc(var(--u) * 14);border:1px solid var(--s-line)}
-.ic-tag b{font-size:calc(var(--u) * 15)}
-.ic-btn{right:calc(var(--u) * 36);bottom:calc(var(--u) * 30)}`)
+.ic-art{position:absolute;left:calc(var(--u) * 40);top:calc(var(--u) * 30);z-index:2;
+  width:calc(var(--u) * 230)}
+.ic-kicker{font-size:calc(var(--u) * 11);font-weight:600;display:inline-block;
+  padding:calc(var(--u) * 3) calc(var(--u) * 9);border-radius:999px;
+  background:var(--s-sur);box-shadow:inset 0 0 0 1px var(--s-line);margin-bottom:calc(var(--u) * 10)}
+.ic-art b{font-size:calc(var(--u) * 32);display:block;line-height:1.2;
+  font-family:var(--s-head-font);font-weight:var(--s-head-w);letter-spacing:var(--s-track)}
+.ic-dek{margin:calc(var(--u) * 10) 0 calc(var(--u) * 10);font-size:calc(var(--u) * 12.5);
+  line-height:1.55;color:var(--s-dim)}
+.ic-by{font-size:calc(var(--u) * 11);display:flex;align-items:center;gap:calc(var(--u) * 6);color:var(--s-dim)}
+.ic-by i{width:calc(var(--u) * 14);height:calc(var(--u) * 14);border-radius:50%;background:var(--s-acc)}
+.ic-cover{position:absolute;right:calc(var(--u) * 32);top:calc(var(--u) * 32);z-index:1;
+  width:calc(var(--u) * 170);height:calc(var(--u) * 210);overflow:hidden;
+  border-radius:calc(var(--u) * var(--s-r) * 1.3);box-shadow:var(--s-sh);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--s-acc) 22%,var(--s-sur)),
+    color-mix(in srgb,var(--s-acc) 8%,var(--s-bg)))}
+.ic-cover svg{width:100%;height:100%;display:block}
+.ic-cover .c-sun{fill:color-mix(in srgb,var(--s-acc) 60%,var(--s-sur))}
+.ic-cover .c-h1{fill:color-mix(in srgb,var(--s-fg) 14%,color-mix(in srgb,var(--s-acc) 12%,var(--s-bg)))}
+.ic-cover .c-h2{fill:color-mix(in srgb,var(--s-fg) 28%,color-mix(in srgb,var(--s-acc) 14%,var(--s-bg)))}
+.ic-cover .c-h3{fill:color-mix(in srgb,var(--s-fg) 46%,color-mix(in srgb,var(--s-acc) 16%,var(--s-bg)))}
+.ic-btn{left:calc(var(--u) * 40);bottom:calc(var(--u) * 26)}`)
 
 /* 샌드 클레이 — 쇼핑몰 제품 카드 */
 scenes['sand-clay'] = {
