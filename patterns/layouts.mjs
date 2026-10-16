@@ -1534,7 +1534,7 @@ LAYOUTS.civic = {
   <div class="civ-tiles">
     ${[['file', '주민등록등본'], ['gov', '건축물대장'], ['chart', '지방세 납부'], ['users', '여권 재발급'],
     ['box', '전입신고'], ['check', '인감증명'], ['cal', '차량 등록'], ['pin', '토지대장']]
-    .map(([g, n]) => `<a class="civ-tile">${ic(g)}<span>${n}</span></a>`).join('')}
+    .map(([g, n]) => `<span class="civ-tile">${ic(g)}<span>${n}</span></span>`).join('')}
   </div>
   <div class="civ-two">
     ${card('공지·고시', '<span class="fv-link">더보기</span>', `<ul class="civ-list">
@@ -2811,4 +2811,48 @@ button.lay-tab{font:inherit;font-size:inherit;border:none;background:none;cursor
 .mono-steps li{display:flex;gap:calc(var(--v) * 14);padding:calc(var(--v) * 8) 0;
   border-top:var(--fv-bd);font-size:calc(var(--v) * 11.5)}
 .mono-steps em{font-style:normal;color:var(--s-dim);width:calc(var(--v) * 34);flex:none}
+`
+
+/* ---------- 모바일 ---------- */
+// 같은 목업 마크업을 390px 폭 기준으로 다시 쌓는다 — 화면을 따로 그리지 않고 .is-mob 아래에서만 재배치.
+// 사이드바·상단 탭은 햄버거로 접히고, 다단 그리드는 한 줄로, 표는 첫 두 칸과 상태(마지막 칸)만 남긴다.
+// 세로로 넘치는 부분은 실제 폰 첫 화면처럼 잘린다.
+export const LAYOUTS_MOBILE_CSS = `
+.is-mob .fv-wrap{aspect-ratio:9/19}
+.is-mob .fv{--v:calc(100cqw / 390);height:auto;min-height:100%}
+.is-mob .fv-side,.is-mob .fv-search,.is-mob .lay-topnav nav,.is-mob .fv-crumb>:not(b),
+.is-mob .fv-crumb i{display:none}
+.is-mob .fv-top{padding:0 calc(var(--v) * 16);gap:calc(var(--v) * 12)}
+.is-mob .fv-top::before{content:"";flex:none;width:calc(var(--v) * 18);height:calc(var(--v) * 12);
+  border-block:calc(var(--v) * 2) solid currentColor;
+  background:linear-gradient(currentColor,currentColor) center/100% calc(var(--v) * 2) no-repeat}
+.is-mob .fv-tools{gap:calc(var(--v) * 10)}
+.is-mob .fv-tools>:nth-child(n+3):not(:last-child){display:none}
+.is-mob .fv-main{padding:calc(var(--v) * 16) calc(var(--v) * 16) 0;flex:none}
+.is-mob .fv-view{overflow:visible}
+.is-mob .fv-h{flex-direction:column;gap:calc(var(--v) * 10)}
+.is-mob .fv-btns{width:100%}
+.is-mob .fv-btns>*{flex:1;justify-content:center}
+/* 본문+사이드 2단 → 한 줄로 쌓기 */
+.is-mob :is(.fv-grid,.lay-art,.lay-cad,.lay-fin,.lay-book,.lay-feat,.lay-advice,.lay-info,.lay-set,.lay-next-g,
+  .lay-plans,.lay-docs,.lms-learn,.rl-feed,.civ-two,.civ-form,.civ-info,.mono-contact,.mono-plans,.mono-cases){
+  grid-template-columns:minmax(0,1fr)}
+/* 카드 묶음 → 두 개씩 */
+.is-mob :is(.fv-kpis,.lay-prods,.lay-svcs,.lay-people,.lay-tiles,.lay-revs,.lay-genres,.lay-hubs,.lay-asm,
+  .lay-docs-g,.lms-resumes,.lms-courses,.lms-certs,.rl-topics,.civ-tiles,.mono-feats){grid-template-columns:1fr 1fr}
+.is-mob .lay-albums{grid-template-columns:repeat(3,1fr)}
+/* 칸반은 열을 옆으로 밀어 보는 게 모바일 관례 — 한 열 + 다음 열 살짝 */
+.is-mob .lay-board{grid-template-columns:repeat(4,84%);overflow:hidden}
+.is-mob .fv-main :is(.fv-grid,.fv-card,.lay-fill,[class*="lay-"],[class*="lms-"],[class*="rl-"],[class*="civ-"],[class*="mono-"]){
+  flex:none;min-height:0}
+/* 필터칩은 줄바꿈 대신 옆으로 이어지다 잘린다 — 앱에서 가로 스크롤되는 칩 줄 */
+.is-mob .lay-chips{flex-wrap:nowrap;overflow:hidden}
+.is-mob .lay-chips>*{white-space:nowrap;flex:none}
+/* 순위 행은 막대 그래프를 빼서 제목·숫자 자리를 확보, 큰 제목·로고 줄은 폭에 맞춘다 */
+.is-mob :is(.lay-rank-b,.rl-rank-b,.lay-rank-c,.rl-rank-r em:last-child){display:none}
+.is-mob :is(.lay-rank-t,.rl-rank-t){flex:1;min-width:0}
+.is-mob .lay-now-t{min-width:0}
+.is-mob .lay-now-t h2{font-size:calc(var(--v) * 28)}
+.is-mob .mono-logos{overflow:hidden}
+.is-mob .fv-main table :is(th,td):nth-child(n+3):not(:last-child){display:none}
 `

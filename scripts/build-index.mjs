@@ -16,7 +16,7 @@ import { SKILLBOOK, LEVELS, CHECKLIST, SKILL_COUNT, CHECK_COUNT } from '../patte
 import { TOKENS_CSS } from './theme.mjs'
 import { CONTACT, hasMail, footer, FOOTER_CSS, MAIL_JS } from '../patterns/contact.mjs'
 import { MOTION_BASE_CSS, motionCss, motionInfo, skinVisible } from '../patterns/motion.mjs'
-import { LAYOUTS, LAYOUT_FOR, layoutViews, renderLayout, LAYOUTS_CSS, EXTRA_SPRITE } from '../patterns/layouts.mjs'
+import { LAYOUTS, LAYOUT_FOR, layoutViews, renderLayout, LAYOUTS_CSS, LAYOUTS_MOBILE_CSS, EXTRA_SPRITE } from '../patterns/layouts.mjs'
 
 const refs = loadRefs()
 const refProblems = lint(refs, loadVocab())
@@ -744,6 +744,7 @@ ${SCENES_CSS}
 ${SCENES_EXTRA_CSS}
 ${PREVIEW_FULL_CSS}
 ${LAYOUTS_CSS}
+${LAYOUTS_MOBILE_CSS}
 /* 쇼케이스 — 목업은 카드 폭에 맞춰 --v(=폭/960)로 통째로 줄어든다 */
 .shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:22px}
 .shot{display:flex;flex-direction:column;text-decoration:none;color:var(--fg);background:var(--panel);
@@ -751,6 +752,8 @@ ${LAYOUTS_CSS}
   content-visibility:auto;contain-intrinsic-size:auto 300px;
   transition:transform .16s cubic-bezier(.2,.7,.3,1),box-shadow .16s,border-color .16s}
 .shot[hidden]{display:none}
+/* 모바일 보기 — 카드가 폰 비율(9:19)로 세로로 길어지므로 폭을 줄여 한 줄에 더 놓는다 */
+.shots.is-mob{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
 .shot .fv-wrap{border-bottom:1px solid var(--line);pointer-events:none}
 .shot:hover,.shot:focus-visible{transform:translateY(-4px);border-color:var(--dim);
   box-shadow:0 2px 4px rgba(0,0,0,.04),0 14px 30px rgba(0,0,0,.09)}
@@ -839,7 +842,12 @@ ${ICON_SPRITE}${EXTRA_SPRITE}
         <h2 class="panel-h">완성 화면 ${shots.length}장</h2>
         <p class="panel-lede">스킨 ${SKINS.length}종이 각자 맞는 분야에서 <strong>실제로 만든 화면</strong>입니다 — 목록·상세·대시보드·설정까지.
         화면을 누르면 그 스킨 페이지의 <strong>같은 화면</strong>이 열리고, 거기서 메뉴를 눌러 다른 화면으로 옮겨갈 수 있습니다.
-        마음에 드는 화면이 있으면 그 주소를 그대로 보내 주세요.</p>
+        마음에 드는 화면이 있으면 그 주소를 그대로 보내 주세요.
+        <strong>모바일</strong>을 누르면 같은 화면이 휴대폰 폭에 맞춰 다시 짜인 모습을 볼 수 있습니다.</p>
+      </div>
+      <div class="mode-switch dev-switch" role="group" aria-label="기기">
+        <button type="button" data-dev="desk" aria-selected="true">데스크톱</button>
+        <button type="button" data-dev="mob" aria-selected="false">모바일</button>
       </div>
     </div>
     <div class="dz-bar">
@@ -1022,6 +1030,13 @@ document.querySelectorAll('.skin').forEach(c => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openSkin(c.dataset.id) }
   })
 })
+
+/* 쇼케이스 기기 전환 — 마크업은 그대로, .is-mob 아래 CSS 가 화면을 폰 폭으로 다시 쌓는다 */
+const devBtns = [...document.querySelectorAll('.dev-switch button')]
+devBtns.forEach(b => b.addEventListener('click', () => {
+  devBtns.forEach(x => x.setAttribute('aria-selected', x === b))
+  document.querySelector('.shots').classList.toggle('is-mob', b.dataset.dev === 'mob')
+}))
 
 /* 쇼케이스 필터 — 디자인 탭과 같은 분야 기준 */
 const shotEls = [...document.querySelectorAll('.shot')]
