@@ -247,31 +247,38 @@ const refEmpty = `<div class="empty">
 
 /* ---------- 탭 4: 견적 ---------- */
 const screenGroups = [...new Set(SCREENS.map(s => s.group))]
+// pricing.mjs 의 그룹명은 작업자 기준이라 방문자용 이름을 따로 붙인다
+const GROUP_LABEL = { 마케팅: '소개 · 홍보 페이지', 진입: '가입 · 시작', 핵심: '핵심 기능', 운영: '관리 · 결제', 상태: '빈 화면 · 오류 안내' }
+// 빈 화면에서 시작하면 뭘 골라야 할지 모른다 — 분야를 고르면 필수 화면이 채워진다
+const presetChips = DOMAINS.map(d =>
+  `<button type="button" class="q-preset" aria-pressed="false" data-apply='${JSON.stringify(d.screens)}'>${esc(d.name)}</button>`).join('')
 const quoteRows = screenGroups.map(g => `
   <div class="q-group">
-    <h4>${esc(g)}</h4>
+    <h4>${esc(GROUP_LABEL[g] ?? g)}</h4>
     ${SCREENS.filter(s => s.group === g).map(s => `
     <div class="q-row" data-id="${s.id}">
-      <div class="q-info"><strong>${esc(s.name)}</strong>${s.note ? `<small>${esc(s.note)}</small>` : ''}</div>
+      <label class="q-info"><input type="checkbox" class="q-ck">
+        <span><strong>${esc(s.name)}</strong>${s.note ? `<small>${esc(s.note)}</small>` : ''}</span></label>
       <div class="q-unit">${fmt(s.price)}</div>
       <div class="q-qty">
-        <button type="button" data-d="-1" aria-label="빼기">−</button>
+        <button type="button" data-d="-1" aria-label="${esc(s.name)} 하나 빼기">−</button>
         <span class="q-n">0</span>
-        <button type="button" data-d="1" aria-label="더하기">+</button>
+        <button type="button" data-d="1" aria-label="${esc(s.name)} 하나 더하기">+</button>
       </div>
     </div>`).join('')}
   </div>`).join('')
 
+// 옵션은 %만 보면 감이 안 온다 — 금액(.q-oamt)은 스크립트가 지금 선택 기준으로 채운다
 const optionRows = [
   `<label class="q-opt q-dark">
      <input type="checkbox" value="dark">
-     <span class="q-oname">다크모드 <em id="q-darkrate"></em></span>
-     <span class="q-odesc">라이트/다크 쌍으로 제공. 추가율은 스킨마다 다릅니다</span>
+     <span class="q-oname">다크모드 <em class="q-oamt" data-o="dark"></em></span>
+     <span class="q-odesc">밝은 화면과 어두운 화면을 한 쌍으로 드립니다</span>
    </label>`,
   ...OPTIONS.map(o => `
   <label class="q-opt">
     <input type="checkbox" value="${o.id}">
-    <span class="q-oname">${esc(o.name)} <em>${pct(o.rate)}</em></span>
+    <span class="q-oname">${esc(o.name)} <em class="q-oamt" data-o="${o.id}"></em></span>
     <span class="q-odesc">${esc(o.desc)}</span>
   </label>`),
 ].join('')
@@ -629,41 +636,56 @@ body{margin:0;background:var(--bg);color:var(--fg);
   padding:7px 12px;border-radius:7px}
 
 /* 견적 탭 */
-.quote{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:28px;align-items:start}
-.q-group{margin-bottom:26px}
-.q-group h4{font-size:11px;color:var(--dim);letter-spacing:.06em;margin:0 0 8px;font-weight:600}
+.quote{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:28px;align-items:start}
+.q-step{font-size:15px;font-weight:600;margin:0 0 4px}
+.q-step b{color:var(--accent);margin-right:6px;font-variant-numeric:tabular-nums}
+.q-hint{font-size:12.5px;color:var(--dim);margin:0 0 12px}
+.q-presets{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:30px}
+.q-preset{font:inherit;font-size:13px;padding:7px 14px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--line);background:var(--panel);color:var(--fg);transition:.12s}
+.q-preset:hover{border-color:var(--dim)}
+.q-preset[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.q-group{margin-bottom:22px}
+.q-group h4{font-size:11.5px;color:var(--dim);letter-spacing:.04em;margin:0 0 8px;font-weight:600}
 .q-row{display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center;
   padding:9px 12px;border:1px solid var(--line);border-radius:9px;margin-bottom:6px;
   background:var(--panel);transition:border-color .12s}
 .q-row.on{border-color:var(--accent)}
+.q-info{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.q-info input{margin:3px 0 0;accent-color:var(--accent)}
 .q-info strong{display:block;font-size:13.5px;font-weight:520}
 .q-info small{display:block;font-size:11.5px;color:var(--dim);line-height:1.4}
 .q-unit{font-size:12.5px;color:var(--dim);font-variant-numeric:tabular-nums;white-space:nowrap}
-.q-qty{display:flex;align-items:center;gap:2px}
+/* 수량은 고른 화면에만 — 같은 화면을 여러 장 쓸 때만 필요하다 */
+.q-qty{display:flex;align-items:center;gap:2px;visibility:hidden}
+.q-row.on .q-qty{visibility:visible}
 .q-qty button{font:inherit;width:24px;height:24px;border:1px solid var(--line);background:var(--panel);
   color:var(--fg);border-radius:6px;cursor:pointer;line-height:1}
 .q-qty button:hover{border-color:var(--dim)}
 .q-n{min-width:22px;text-align:center;font-size:13px;font-variant-numeric:tabular-nums}
 .q-side{position:sticky;top:112px;border:1px solid var(--line);border-radius:12px;
-  padding:16px;background:var(--panel)}
-.q-side label.fld-l{display:block;font-size:11px;color:var(--dim);letter-spacing:.05em;margin-bottom:5px}
+  padding:18px;background:var(--panel)}
+.q-total{padding-bottom:14px;margin-bottom:16px;border-bottom:1px solid var(--line)}
+.q-total span{display:block;font-size:12px;color:var(--dim)}
+.q-total b{display:block;font-size:28px;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin:2px 0 4px}
+.q-pay{font-size:12px;color:var(--dim);line-height:1.5}
+.q-side label.fld-l{display:block;font-size:12px;font-weight:600;margin-bottom:6px}
 .q-side select{font:inherit;font-size:13.5px;width:100%;padding:8px 10px;border-radius:8px;
-  border:1px solid var(--line);background:var(--panel);color:var(--fg);margin-bottom:16px}
+  border:1px solid var(--line);background:var(--panel);color:var(--fg)}
+.q-why{font-size:11.5px;color:var(--dim);line-height:1.45;margin:6px 0 16px}
+.q-opts .fld-l{margin-top:4px}
 .q-opt{display:grid;grid-template-columns:auto 1fr;gap:2px 9px;padding:8px 0;
   border-top:1px solid var(--line);cursor:pointer}
-.q-opt input{margin:3px 0 0;grid-row:span 2;align-self:start}
-.q-oname{font-size:13px}
-.q-oname em{font-style:normal;color:var(--accent);font-size:11.5px;font-variant-numeric:tabular-nums}
+.q-opt input{margin:3px 0 0;grid-row:span 2;align-self:start;accent-color:var(--accent)}
+.q-oname{font-size:13px;display:flex;justify-content:space-between;gap:8px}
+.q-oname em{font-style:normal;color:var(--accent);font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .q-odesc{font-size:11.5px;color:var(--dim);line-height:1.45}
-.q-break{margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:12.5px}
+.q-break{margin-top:12px;border-top:1px solid var(--line);font-size:12.5px}
+.q-break summary{cursor:pointer;padding:10px 0 4px;color:var(--dim);font-size:12px}
 .q-line{display:flex;justify-content:space-between;gap:10px;padding:3px 0;color:var(--dim)}
 .q-line b{font-weight:520;color:var(--fg);font-variant-numeric:tabular-nums}
 .q-line.sub{border-top:1px dashed var(--line);margin-top:6px;padding-top:8px}
-.q-total{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
-  margin-top:12px;padding-top:12px;border-top:1px solid var(--fg)}
-.q-total span{font-size:12px;color:var(--dim)}
-.q-total b{font-size:22px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.q-note{font-size:11.5px;color:var(--warn);margin-top:8px;line-height:1.45}
+.q-note{font-size:11.5px;color:var(--warn);margin-top:6px;line-height:1.45}
 .q-basis{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);
   font-size:11.5px;color:var(--dim)}
 .q-basis ul{margin:6px 0 0;padding-left:16px}
@@ -897,24 +919,35 @@ ${ICON_SPRITE}${EXTRA_SPRITE}
   </section>` : ''}
 
   <section id="p-quote" role="tabpanel" hidden>
-    <div class="panel-head"><p class="panel-lede">화면을 고르면 견적이 계산됩니다.
-    금액은 <code>patterns/pricing.mjs</code>에서 관리하고, 산정 근거는 <code>docs/06-pricing.md</code>에 있습니다.
-    <strong>출발값이지 시장 표준가가 아닙니다</strong> — 실제 단가로 바꿔서 쓰세요.</p></div>
+    <div class="panel-head"><p class="panel-lede">만들 서비스와 필요한 화면을 고르면 예상 금액이 바로 나옵니다.
+    상담 전에 대략적인 규모를 가늠하는 용도이고, 최종 금액은 요구사항을 확인한 뒤 확정됩니다.</p></div>
     <div class="quote">
-      <div class="q-main">${quoteRows}</div>
-      <aside class="q-side">
-        <label class="fld-l" for="q-skin">스킨</label>
-        <select id="q-skin">${SKINS.map(s =>
-  `<option value="${s.id}">${esc(s.name)} ×${(SKIN_TIER[s.id]?.factor ?? 1).toFixed(2)}</option>`).join('')}</select>
-        <div class="q-opts">${optionRows}</div>
-        <div class="q-break" id="q-break"></div>
-        <div class="q-total"><span>합계 (VAT 별도)</span><b id="q-total">${fmt(0)}</b></div>
-        <div class="q-note" id="q-min" hidden></div>
+      <div class="q-main">
+        <p class="q-step"><b>1</b>어떤 서비스를 만드시나요?</p>
+        <p class="q-hint">고르면 보통 필요한 화면이 자동으로 채워집니다. 아래에서 더하거나 빼면 됩니다.</p>
+        <div class="q-presets">${presetChips}</div>
+        <p class="q-step"><b>2</b>필요한 화면을 고르세요</p>
+        <p class="q-hint">금액은 화면 1개 기준입니다. 같은 화면이 여러 장이면 수량을 늘리세요.</p>
+        ${quoteRows}
+      </div>
+      <aside class="q-side" aria-live="polite">
+        <div class="q-total"><span>예상 금액 (VAT 별도 · 만 원 단위)</span><b id="q-total">${fmt(0)}</b>
+          <div class="q-pay" id="q-pay">${esc(TERMS.payment)}</div>
+          <div class="q-note" id="q-min" hidden></div></div>
+        <label class="fld-l" for="q-skin">디자인 스타일</label>
+        <select id="q-skin">${SKINS.map(s => {
+  const f = SKIN_TIER[s.id]?.factor ?? 1
+  return `<option value="${s.id}">${esc(s.name)} — ${f > 1 ? `작업량 ${pct(f - 1)}` : '기본'}</option>`
+}).join('')}</select>
+        <p class="q-why" id="q-why"></p>
+        <div class="q-opts"><span class="fld-l">추가 옵션</span>${optionRows}</div>
+        <details class="q-break"><summary>금액 내역 보기</summary><div id="q-break"></div></details>
         ${hasMail() ? `<a class="q-cta mailto" data-u="${CONTACT.mail.user}" data-d="${CONTACT.mail.domain}"
-           id="q-cta">이 견적으로 문의하기 →</a>` : `<div class="q-cta-off">
+           id="q-cta">이 구성으로 상담 요청하기 →</a>` : `<div class="q-cta-off">
            문의 버튼을 켜려면 <code>patterns/contact.mjs</code>의 <code>mail</code>을 채우세요.</div>`}
-        <div class="q-basis"><strong>단가 전제</strong>
+        <div class="q-basis"><strong>기본으로 포함된 것</strong>
           <ul>${BASIS.map(b => `<li>${esc(b)}</li>`).join('')}</ul>
+          <p>${esc(TERMS.staging)}</p>
         </div>
       </aside>
     </div>
@@ -1136,6 +1169,8 @@ const picks = {}
 const fmt = n => '₩' + Math.round(n).toLocaleString('ko-KR')
 const darkRate = id => (id in DATA.dark.bySkin) ? DATA.dark.bySkin[id] : DATA.dark.base
 const pct = r => '+' + Math.round(r * 100) + '%'
+/* 손님에게 보이는 예상 금액은 만 원 단위로 — 원 단위까지 찍으면 확정가처럼 읽힌다. 내역은 정확한 값 그대로 */
+const won = n => fmt(Math.round(n / 10000) * 10000)
 
 function calc(){
   const skinId = document.getElementById('q-skin').value
@@ -1155,24 +1190,38 @@ function calc(){
   const sum = base + addons.reduce((n, a) => n + a.amount, 0)
   const belowMin = sum > 0 && sum < DATA.minimum
 
+  const total = Math.round((belowMin ? DATA.minimum : sum) / 10000) * 10000
   const row = (l, v, cls) => '<div class="q-line ' + (cls||'') + '"><span>' + l + '</span><b>' + v + '</b></div>'
   let html = ''
   if (!lines.length) {
-    html = '<div class="q-line"><span>화면을 선택하세요</span></div>'
+    html = '<div class="q-line"><span>아직 고른 화면이 없습니다</span></div>'
   } else {
     html += lines.map(l => row(l.name + (l.qty > 1 ? ' ×' + l.qty : ''), fmt(l.amount))).join('')
-    html += row('화면 소계', fmt(screensSubtotal), 'sub')
-    if (skinAdjust) html += row('스킨 난이도 ×' + factor.toFixed(2), (skinAdjust > 0 ? '+' : '') + fmt(skinAdjust))
-    html += addons.map(a => row(a.name + ' ' + pct(a.rate), '+' + fmt(a.amount))).join('')
+    html += row('화면 디자인 합계', fmt(screensSubtotal), 'sub')
+    if (skinAdjust) html += row('스타일 작업량 ' + pct(factor - 1), '+' + fmt(skinAdjust))
+    html += addons.map(a => row(a.name, '+' + fmt(a.amount))).join('')
   }
   document.getElementById('q-break').innerHTML = html
-  document.getElementById('q-total').textContent = fmt(belowMin ? DATA.minimum : sum)
+  document.getElementById('q-total').textContent = fmt(total)
+  /* 계약금 50% / 잔금 50% — 실제로 언제 얼마를 내는지가 총액보다 먼저 궁금하다 */
+  const deposit = Math.round(total / 2)
+  document.getElementById('q-pay').textContent = total
+    ? '계약금 ' + fmt(deposit) + ' · 완료 후 잔금 ' + fmt(Math.round(total) - deposit)
+    : '화면을 고르면 금액이 계산됩니다'
 
   const minEl = document.getElementById('q-min')
   minEl.hidden = !belowMin
-  if (belowMin) minEl.textContent = '최소 진행 금액 ' + fmt(DATA.minimum) + ' 미만이라 최소 금액으로 표시됩니다 (계산값 ' + fmt(sum) + ').'
+  if (belowMin) minEl.textContent = '최소 진행 금액 ' + fmt(DATA.minimum) + '부터 작업합니다 (고른 구성 약 ' + won(sum) + ').'
 
-  document.getElementById('q-darkrate').textContent = pct(darkRate(skinId))
+  /* 스타일·옵션마다 지금 구성에서 얼마가 붙는지 원 단위로 보여준다 */
+  document.getElementById('q-why').textContent = (factor > 1
+    ? (base ? '이 스타일은 약 +' + won(skinAdjust) + ' — ' : '')
+    : '추가 비용 없는 기본 스타일 — ') + (DATA.tierWhy[skinId] || '')
+  document.querySelectorAll('.q-oamt').forEach(el => {
+    const id = el.dataset.o
+    const rate = id === 'dark' ? darkRate(skinId) : DATA.options.find(o => o.id === id).rate
+    el.textContent = base ? '+' + won(base * rate) : pct(rate)
+  })
 
   /* 문의 메일 본문을 지금 선택으로 채운다 — 클라이언트가 견적을 그대로 보낼 수 있게 */
   const cta = document.getElementById('q-cta')
@@ -1183,13 +1232,13 @@ function calc(){
       '■ 화면',
       ...(lines.length ? lines.map(l => '  - ' + l.name + (l.qty > 1 ? ' ×' + l.qty : '')) : ['  (미선택)']),
       '',
-      '■ 스킨: ' + skinName + ' (' + skinId + ') ×' + factor.toFixed(2),
-      '■ 옵션: ' + (addons.length ? addons.map(a => a.name + ' ' + pct(a.rate)).join(', ') : '없음'),
-      '■ 합계: ' + fmt(belowMin ? DATA.minimum : sum) + ' (VAT 별도)',
-      '', '— design-store 견적 탭에서 계산한 값입니다.',
+      '■ 디자인 스타일: ' + skinName,
+      '■ 추가 옵션: ' + (addons.length ? addons.map(a => a.name).join(', ') : '없음'),
+      '■ 예상 금액: ' + fmt(total) + ' (VAT 별도)',
+      '', '— design-store 견적 탭에서 계산한 예상 금액입니다.',
     ].join(String.fromCharCode(10))
     cta.href = 'mailto:' + mailAddr(cta)
-      + '?subject=' + encodeURIComponent('[design-store] 견적 문의 — ' + skinName)
+      + '?subject=' + encodeURIComponent('[design-store] 상담 요청 — ' + skinName)
       + '&body=' + encodeURIComponent(body)
   }
 }
@@ -1208,24 +1257,35 @@ document.querySelectorAll('[data-pat]').forEach(b => b.addEventListener('click',
 }))
 document.querySelectorAll('[data-skin]').forEach(b =>
   b.addEventListener('click', () => openSkin(b.dataset.skin)))
-document.querySelectorAll('.dom-apply').forEach(b => b.addEventListener('click', () => {
-  const map = JSON.parse(b.dataset.apply)
-  for (const row of document.querySelectorAll('.q-row')) {
-    const id = row.dataset.id
-    picks[id] = map[id] || 0
-    row.querySelector('.q-n').textContent = picks[id]
-    row.classList.toggle('on', picks[id] > 0)
-  }
+function setQty(rowEl, n){
+  const id = rowEl.dataset.id
+  picks[id] = Math.max(0, Math.min(20, n))
+  rowEl.querySelector('.q-n').textContent = picks[id]
+  rowEl.querySelector('.q-ck').checked = picks[id] > 0
+  rowEl.classList.toggle('on', picks[id] > 0)
+}
+function applyPreset(map){
+  document.querySelectorAll('.q-row').forEach(r => setQty(r, map[r.dataset.id] || 0))
   calc()
+}
+document.querySelectorAll('.dom-apply').forEach(b => b.addEventListener('click', () => {
+  applyPreset(JSON.parse(b.dataset.apply))
   show('quote')
 }))
-
+document.querySelectorAll('.q-preset').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.q-preset').forEach(x => x.setAttribute('aria-pressed', x === b))
+  applyPreset(JSON.parse(b.dataset.apply))
+}))
+/* 직접 손대면 더 이상 그 분야 기본 구성이 아니다 */
+const unpress = () => document.querySelectorAll('.q-preset').forEach(x => x.setAttribute('aria-pressed', false))
+document.querySelectorAll('.q-ck').forEach(c => c.addEventListener('change', () => {
+  setQty(c.closest('.q-row'), c.checked ? 1 : 0)
+  unpress(); calc()
+}))
 document.querySelectorAll('.q-qty button').forEach(b => b.addEventListener('click', () => {
-  const rowEl = b.closest('.q-row'), id = rowEl.dataset.id
-  picks[id] = Math.max(0, Math.min(20, (picks[id] || 0) + Number(b.dataset.d)))
-  rowEl.querySelector('.q-n').textContent = picks[id]
-  rowEl.classList.toggle('on', picks[id] > 0)
-  calc()
+  const rowEl = b.closest('.q-row')
+  setQty(rowEl, (picks[rowEl.dataset.id] || 0) + Number(b.dataset.d))
+  unpress(); calc()
 }))
 document.getElementById('q-skin').addEventListener('change', calc)
 document.querySelectorAll('.q-opts input').forEach(i => i.addEventListener('change', calc))
