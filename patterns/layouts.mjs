@@ -53,14 +53,17 @@ const sidebar = (L, on = L.home) => `<aside class="fv-side">
   <div class="fv-user">${av('진', 5)}<div><b>박진우</b><small>jinwoo@acme.co</small></div></div>
 </aside>`
 
-const topbar = (L, home) => `<header class="fv-top">
+/** 모바일 메뉴 버튼 — 데스크톱에서는 숨는다. 스킨 페이지에서는 눌러서 사이드바·탭을 연다 */
+const BURGER = '<span class="fv-burger"><i></i></span>'
+
+const topbar = (L, home) => `<header class="fv-top">${BURGER}
   <div class="fv-crumb">${home.crumb[0]} <i>/</i> <b>${home.crumb[1]}</b></div>
   <div class="fv-search">${ic('search')}<span>${L.searchHint || '검색'}</span><span class="fv-kbd">⌘K</span></div>
   <div class="fv-tools">${ic('bell')}${av('진', 5, 'sm')}</div>
 </header>`
 
 /** 사이드바 없는 레이아웃(쇼핑몰·매거진·예약)의 상단 내비 */
-const topnav = (L, on = L.home) => `<header class="fv-top lay-topnav">
+const topnav = (L, on = L.home) => `<header class="fv-top lay-topnav">${BURGER}
   <b class="lay-logo">${L.brand}</b>
   <nav>${L.tabs.map(([t, v]) =>
   `<button type="button" class="lay-tab${v === on ? ' on' : ''}" data-v="${v}">${t}</button>`).join('')}</nav>
@@ -2823,9 +2826,23 @@ export const LAYOUTS_MOBILE_CSS = `
 .is-mob .fv-side,.is-mob .fv-search,.is-mob .lay-topnav nav,.is-mob .fv-crumb>:not(b),
 .is-mob .fv-crumb i{display:none}
 .is-mob .fv-top{padding:0 calc(var(--v) * 16);gap:calc(var(--v) * 12)}
-.is-mob .fv-top::before{content:"";flex:none;width:calc(var(--v) * 18);height:calc(var(--v) * 12);
-  border-block:calc(var(--v) * 2) solid currentColor;
+.fv-burger{display:none}
+.is-mob .fv-burger{display:flex;align-items:center;flex:none;width:calc(var(--v) * 18);height:calc(var(--v) * 14);
+  cursor:pointer;color:inherit}
+.is-mob .fv-burger i{width:100%;height:calc(var(--v) * 12);border-block:calc(var(--v) * 2) solid currentColor;
   background:linear-gradient(currentColor,currentColor) center/100% calc(var(--v) * 2) no-repeat}
+/* 메뉴 열림 — 사이드바는 왼쪽 서랍, 상단 탭은 헤더 아래 드롭다운 */
+.is-mob .fv{position:relative}
+.is-mob .fv-top{position:sticky;top:0;z-index:4;background:var(--s-bg)}
+.is-mob .fv.nav-open::after{content:"";position:absolute;inset:0;z-index:3;background:rgba(0,0,0,.4)}
+.is-mob .fv.nav-open .fv-side{display:flex;position:absolute;inset:0 auto 0 0;z-index:6;
+  width:calc(var(--v) * 260);box-shadow:0 0 30px rgba(0,0,0,.25)}
+.is-mob .fv.nav-open .lay-topnav nav{display:flex;flex-direction:column;gap:0;position:absolute;
+  top:100%;left:0;right:0;z-index:6;background:var(--s-bg);border-bottom:1px solid var(--s-line);
+  padding:calc(var(--v) * 6) calc(var(--v) * 16) calc(var(--v) * 12);box-shadow:0 12px 24px rgba(0,0,0,.12)}
+.is-mob .fv.nav-open .lay-topnav nav .lay-tab{text-align:left;font-size:calc(var(--v) * 15);
+  padding:calc(var(--v) * 11) 0;border-bottom:1px solid var(--s-line)}
+.is-mob .fv.nav-open .lay-topnav nav .lay-tab.on{border-bottom-color:var(--s-acc)}
 .is-mob .fv-tools{gap:calc(var(--v) * 10)}
 .is-mob .fv-tools>:nth-child(n+3):not(:last-child){display:none}
 .is-mob .fv-main{padding:calc(var(--v) * 16) calc(var(--v) * 16) 0;flex:none}

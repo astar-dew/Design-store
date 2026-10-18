@@ -93,7 +93,7 @@ const shots = SKINS.flatMap((s, si) => {
   return layoutViews(key).map((v, i) => ({ s, key, v, home: i === 0, order: i * SKINS.length + si }))
 }).sort((a, b) => a.order - b.order)
 const shotCards = shots.map(({ s, key, v, home }) => `
-  <a class="shot sk-${s.id} mode-${s.base}" href="skins/${s.id}.html${home ? '' : '#' + v.id}"
+  <a class="shot sk-${s.id} mode-${s.base}" href="skins/${s.id}.html${home ? '' : '#' + v.id}" data-v="${home ? '' : v.id}"
      data-doms="${SKIN_DOMS[s.id].join(' ')}" aria-label="${esc(s.name)} — ${esc(LAYOUTS[key].domain)} · ${esc(v.label)}">
     <div class="fv-wrap" aria-hidden="true" inert>${renderLayout(key, v.id)}</div>
     <div class="shot-meta"><b>${esc(v.label)}</b><span>${esc(LAYOUTS[key].domain)} · ${esc(s.name)}</span></div>
@@ -998,7 +998,7 @@ if (tabs.some(t => t.dataset.p === location.hash.slice(1))) show(location.hash.s
 
 /* 라이트/다크 스위치 — 모드 클래스는 대상 엘리먼트 자신에게 붙인다.
    조상 셀렉터로 하면 라이트 페이지 안의 다크 프리뷰가 조상 규칙과 충돌한다. */
-document.querySelectorAll('.mode-switch').forEach(sw => {
+document.querySelectorAll('.mode-switch:not(.dev-switch)').forEach(sw => {
   const targets = () => sw.dataset.target
     ? [document.getElementById(sw.dataset.target)]
     : [...document.querySelectorAll('.skin')]
@@ -1020,7 +1020,7 @@ document.querySelectorAll('.mode-switch').forEach(sw => {
 function forcedMode(){
   const base = document.querySelector('.mode-switch button[data-mode="base"]')
   if (base && base.getAttribute('aria-selected') === 'true') return ''
-  const on = document.querySelector('.mode-switch button[aria-selected="true"]')
+  const on = document.querySelector('.mode-switch button[data-mode][aria-selected="true"]')
   return on ? '#/' + on.dataset.mode : ''
 }
 const openSkin = id => { location.href = 'skins/' + id + '.html' + forcedMode() }
@@ -1031,17 +1031,21 @@ document.querySelectorAll('.skin').forEach(c => {
   })
 })
 
-/* 쇼케이스 기기 전환 — 마크업은 그대로, .is-mob 아래 CSS 가 화면을 폰 폭으로 다시 쌓는다 */
-const devBtns = [...document.querySelectorAll('.dev-switch button')]
-devBtns.forEach(b => b.addEventListener('click', () => {
-  devBtns.forEach(x => x.setAttribute('aria-selected', x === b))
-  document.querySelector('.shots').classList.toggle('is-mob', b.dataset.dev === 'mob')
-}))
-
 /* 쇼케이스 필터 — 디자인 탭과 같은 분야 기준 */
 const shotEls = [...document.querySelectorAll('.shot')]
 const sfChips = [...document.querySelectorAll('.fchip[data-sf]')]
 const sfCount = document.querySelector('.sf-count')
+
+/* 쇼케이스 기기 전환 — 마크업은 그대로, .is-mob 아래 CSS 가 화면을 폰 폭으로 다시 쌓는다 */
+const devBtns = [...document.querySelectorAll('.dev-switch button')]
+devBtns.forEach(b => b.addEventListener('click', () => {
+  devBtns.forEach(x => x.setAttribute('aria-selected', x === b))
+  const mob = b.dataset.dev === 'mob'
+  document.querySelector('.shots').classList.toggle('is-mob', mob)
+  // 눌렀을 때 스킨 페이지도 같은 기기로 열리게 — #view/mobile
+  for (const c of shotEls) c.href = c.href.split('#')[0] + (mob ? '#' + c.dataset.v + '/mobile' : c.dataset.v ? '#' + c.dataset.v : '')
+}))
+
 sfChips.forEach(chip => chip.addEventListener('click', () => {
   const f = chip.dataset.sf
   sfChips.forEach(x => x.setAttribute('aria-pressed', x === chip))

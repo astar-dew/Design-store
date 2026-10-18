@@ -8,7 +8,7 @@ import { writeFileSync, mkdirSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { REPO, loadRefs, esc, md } from './lib.mjs'
 import { SKINS, skinCss, fontLinks, modeVars, PREVIEW_FULL_CSS, ICON_SPRITE } from '../patterns/skins.mjs'
-import { LAYOUTS, LAYOUT_FOR, renderLayout, LAYOUTS_CSS, EXTRA_SPRITE } from '../patterns/layouts.mjs'
+import { LAYOUTS, LAYOUT_FOR, renderLayout, LAYOUTS_CSS, LAYOUTS_MOBILE_CSS, EXTRA_SPRITE } from '../patterns/layouts.mjs'
 import { SKIN_TIER, darkRate } from '../patterns/pricing.mjs'
 import { TOKENS_CSS } from './theme.mjs'
 import { footer, FOOTER_CSS, MAIL_JS } from '../patterns/contact.mjs'
@@ -196,9 +196,20 @@ body{margin:0;background:var(--bg);color:var(--fg);
 .mode-switch button{font:inherit;font-size:12.5px;background:none;border:none;cursor:pointer;
   padding:7px 15px;color:var(--dim)}
 .mode-switch button[aria-selected="true"]{background:var(--fg);color:var(--bg)}
+.dev-switch{margin-left:0}
+.stage-hint .mob{display:none}
+.top:has(.dev-switch [data-dev="mob"][aria-selected="true"])~.stage-hint .mob{display:inline}
+.top:has(.dev-switch [data-dev="mob"][aria-selected="true"])~.stage-hint .desk{display:none}
+/* 모바일 — 390px 폰 안에서 세로로 스크롤해 본다. 1:1 크기라 글자가 실제 폰과 같다 */
+.stage-wrap.is-mob{background:var(--chip);padding:28px 16px}
+.is-mob .stage-scroll{overflow:visible}
+.is-mob .stage-scroll .fv-wrap{width:min(390px,100%);height:min(780px,78vh);aspect-ratio:auto;margin:0 auto;
+  overflow-y:auto;scrollbar-width:none;border-radius:34px;border:8px solid #1b1b1d;
+  box-shadow:0 18px 40px rgba(0,0,0,.18)}
+.is-mob .stage-scroll .fv-wrap::-webkit-scrollbar{display:none}
 .stage-hint{margin:0 0 10px;font-size:12.5px;color:var(--dim)}
 .stage-hint b{color:var(--fg);font-weight:560}
-.stage-hint .narrow{display:none}
+.stage-hint .narrow{display:none!important}
 .m-replay{font:inherit;font-size:12px;margin-left:8px;padding:2px 10px;border:1px solid var(--line);
   border-radius:999px;background:var(--panel);color:var(--dim);cursor:pointer;vertical-align:1px}
 .m-replay:hover{color:var(--fg);border-color:var(--dim)}
@@ -248,6 +259,7 @@ body{margin:0;background:var(--bg);color:var(--fg);
 .myref-f a:hover{text-decoration:underline}
 ${PREVIEW_FULL_CSS}
 ${LAYOUTS_CSS}
+${LAYOUTS_MOBILE_CSS}
 ${skinCss(s)}
 ${MOTION_BASE_CSS}
 ${motionCss(s.id)}
@@ -267,7 +279,7 @@ ${FOOTER_CSS}
   .demo-grid{grid-template-columns:1fr;gap:20px}
   .demo{padding:20px 18px 24px}
   .stage-scroll .fv-wrap{width:760px}   /* 3:2 유지 · --v 는 760/960 = 0.79배까지만 */
-  .stage-hint .narrow{display:inline}
+  .top:not(:has(.dev-switch [data-dev="mob"][aria-selected="true"]))~.stage-hint .narrow{display:inline!important}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
@@ -286,11 +298,16 @@ ${ICON_SPRITE}${EXTRA_SPRITE}
       <button type="button" data-mode="light" aria-selected="${s.base === 'light'}">라이트</button>
       <button type="button" data-mode="dark" aria-selected="${s.base === 'dark'}">다크</button>
     </div>
+    <div class="mode-switch dev-switch" role="group" aria-label="기기">
+      <button type="button" data-dev="desk" aria-selected="true">데스크톱</button>
+      <button type="button" data-dev="mob" aria-selected="false">모바일</button>
+    </div>
   </div>
 
-  <p class="stage-hint"><b>${navWord}</b>를 눌러보세요 — 이 분야의 화면 ${viewN}종이 실제로 전환됩니다.
+  <p class="stage-hint"><span class="desk"><b>${navWord}</b>를 눌러보세요 — </span><span class="mob">왼쪽 위 <b>메뉴(☰)</b>를 눌러보세요 — </span>이 분야의 화면 ${viewN}종이 실제로 전환됩니다.
     아래 컴포넌트는 호버·눌림·포커스·비활성이 동작합니다.
-    <span class="narrow">목업은 <b>가로로 밀어서</b> 보세요.</span>
+    <span class="narrow desk">목업은 <b>가로로 밀어서</b> 보세요.</span>
+    <span class="mob">폰 화면 안에서 <b>위아래로 스크롤</b>됩니다.</span>
     ${mi.still ? '' : '<button type="button" class="m-replay" id="m-replay">▶ 다시 보기</button>'}</p>
 
   <div class="stage-wrap sk-${s.id} mode-${s.base}" id="root">
@@ -329,6 +346,7 @@ ${ICON_SPRITE}${EXTRA_SPRITE}
      #orders        주문 목록 (스킨 기본 모드)
      #orders/dark   주문 목록 · 다크
      #/dark         기본 화면 · 다크
+     #orders/mobile 주문 목록 · 모바일 (모드와 같이 쓰면 #orders/dark/mobile)
    뒤로가기로 직전 화면으로 돌아온다.                                */
 ${MAIL_JS}
 
@@ -337,20 +355,26 @@ const fv = document.querySelector('.fv')
 const views = [...fv.querySelectorAll('.fv-view')]
 const navs = [...fv.querySelectorAll('button.fv-nav, button.lay-tab')]
 const crumb = fv.querySelector('.fv-crumb')
-const modeBtns = [...document.querySelectorAll('.mode-switch button')]
+const modeBtns = [...document.querySelectorAll('.mode-switch button[data-mode]')]
+const devBtns = [...document.querySelectorAll('.dev-switch button')]
+const burger = fv.querySelector('.fv-burger')
 
 const HOME = (views.find(v => !v.hidden) || views[0]).dataset.v
 const BASE = root.classList.contains('mode-dark') ? 'dark' : 'light'
-let cur = { view: HOME, mode: BASE }
+let cur = { view: HOME, mode: BASE, mob: false }
 
-const hashOf = st =>
-  (st.view === HOME ? '' : st.view) + (st.mode === BASE ? '' : '/' + st.mode)
+const hashOf = st => {
+  const extra = [st.mode === BASE ? '' : st.mode, st.mob ? 'mobile' : ''].filter(Boolean)
+  return (st.view === HOME ? '' : st.view) + (extra.length ? '/' + extra.join('/') : '')
+}
 
 function parseHash(){
-  const [v, m] = location.hash.slice(1).split('/')
+  const [v, ...rest] = location.hash.slice(1).split('/')
+  const m = rest.find(x => x === 'dark' || x === 'light')
   return {
     view: views.some(x => x.dataset.v === v) ? v : HOME,
-    mode: (m === 'dark' || m === 'light') ? m : BASE,
+    mode: m || BASE,
+    mob: rest.includes('mobile'),
   }
 }
 
@@ -369,6 +393,10 @@ function render(st){
   root.classList.toggle('mode-dark', st.mode === 'dark')
   root.classList.toggle('mode-light', st.mode === 'light')
   modeBtns.forEach(b => b.setAttribute('aria-selected', b.dataset.mode === st.mode))
+  root.classList.toggle('is-mob', st.mob)
+  devBtns.forEach(b => b.setAttribute('aria-selected', (b.dataset.dev === 'mob') === st.mob))
+  menu(false)
+  if (st.mob !== cur.mob || st.view !== cur.view) fv.parentElement.scrollTop = 0
   cur = st
   // 화면이 바뀔 때만 등장을 다시 튼다 — 라이트/다크 전환까지 재생하면 비교가 방해된다
   if (st.view !== lastView) { lastView = st.view; play() }
@@ -397,9 +425,27 @@ M_INIT(fv)
 new IntersectionObserver(([e]) => fv.classList.toggle('m-off', !e.isIntersecting)).observe(fv)
 document.getElementById('m-replay')?.addEventListener('click', play)
 
+/* 모바일 메뉴 — ☰ 로 사이드바(서랍)·상단 탭(드롭다운)을 연다. 바깥(어두운 막)을 누르면 닫힌다 */
+function menu(open){
+  fv.classList.toggle('nav-open', open)
+  burger?.setAttribute('aria-expanded', open)
+}
+if (burger) {
+  burger.tabIndex = 0
+  burger.setAttribute('role', 'button')
+  burger.setAttribute('aria-label', '메뉴')
+  const toggle = () => { if (!fv.classList.contains('nav-open')) fv.parentElement.scrollTop = 0; menu(!fv.classList.contains('nav-open')) }
+  burger.addEventListener('click', toggle)
+  burger.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle() } })
+}
+fv.addEventListener('click', e => {
+  if (fv.classList.contains('nav-open') && !e.target.closest('.fv-side, .lay-topnav nav, .fv-burger')) menu(false)
+})
+
 window.addEventListener('hashchange', () => render(parseHash()))
-navs.forEach(n => n.addEventListener('click', () => go({ view: n.dataset.v, mode: cur.mode })))
-modeBtns.forEach(b => b.addEventListener('click', () => go({ view: cur.view, mode: b.dataset.mode })))
+navs.forEach(n => n.addEventListener('click', () => go({ ...cur, view: n.dataset.v })))
+modeBtns.forEach(b => b.addEventListener('click', () => go({ ...cur, mode: b.dataset.mode })))
+devBtns.forEach(b => b.addEventListener('click', () => go({ ...cur, mob: b.dataset.dev === 'mob' })))
 render(parseHash())
 
 // 세그먼트 — 눌러서 전환되는 걸 보여준다
