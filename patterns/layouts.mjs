@@ -2835,7 +2835,9 @@ export const LAYOUTS_MOBILE_CSS = `
 .is-mob .fv{position:relative}
 .is-mob .fv-top{position:sticky;top:0;z-index:4;background:var(--s-bg)}
 .is-mob .fv.nav-open::after{content:"";position:absolute;inset:0;z-index:3;background:rgba(0,0,0,.4)}
+/* 사이드바 배경이 투명한 스킨(격자 위에 얹는 네온·블루프린트)도 있다 — 서랍은 바탕색을 깔아 막이 비치지 않게 */
 .is-mob .fv.nav-open .fv-side{display:flex;position:absolute;inset:0 auto 0 0;z-index:6;
+  background:linear-gradient(var(--s-side-bg),var(--s-side-bg)) var(--s-bg);
   width:calc(var(--v) * 260);box-shadow:0 0 30px rgba(0,0,0,.25)}
 .is-mob .fv.nav-open .lay-topnav nav{display:flex;flex-direction:column;gap:0;position:absolute;
   top:100%;left:0;right:0;z-index:6;background:var(--s-bg);border-bottom:1px solid var(--s-line);
