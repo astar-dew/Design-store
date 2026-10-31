@@ -3,20 +3,20 @@
 //   scripts/build-gallery.mjs && open gallery.html
 import { writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { REPO, loadRefs, loadVocab, lint } from './lib.mjs'
+import { REPO, loadRefs, loadVocab, lint, secure } from './lib.mjs'
 import { renderPage } from './render.mjs'
 
 const refs = loadRefs()
 const problems = lint(refs, loadVocab())
 
 const out = join(REPO, 'gallery.html')
-writeFileSync(out, renderPage({
+writeFileSync(out, secure(renderPage({
   title: 'A-Dew, design-store',
   subtitle: `레퍼런스 ${refs.length}건 · 같은 축 안에서는 OR, 축이 다르면 AND 로 필터됩니다`,
   refs,
   embed: false,
   outDir: REPO,
-}))
+})))
 
 console.log(`✓ ${out}  (${refs.length}건)`)
 if (problems.length) {

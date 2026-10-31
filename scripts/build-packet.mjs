@@ -7,7 +7,7 @@
 //   scripts/build-packet.mjs --out briefs/inventory-app --slugs a,b --title "재고관리 앱 레퍼런스"
 import { writeFileSync, mkdirSync, statSync } from 'node:fs'
 import { join, isAbsolute } from 'node:path'
-import { REPO, loadRefs } from './lib.mjs'
+import { REPO, loadRefs, secure } from './lib.mjs'
 import { renderPage } from './render.mjs'
 
 const argv = process.argv.slice(2)
@@ -48,12 +48,12 @@ const outDir = isAbsolute(opt.out) ? opt.out : join(REPO, opt.out)
 mkdirSync(outDir, { recursive: true })
 const file = join(outDir, 'packet.html')
 
-writeFileSync(file, renderPage({
+writeFileSync(file, secure(renderPage({
   title: opt.title || `레퍼런스 패킷 — ${opt.out.split('/').pop()}`,
   subtitle: `${refs.length}건 · 각 항목의 Why / Highlights / Don't take 를 확인하세요`,
   refs,
   embed: true,
-}))
+})))
 
 const mb = (statSync(file).size / 1024 / 1024).toFixed(1)
 console.log(`✓ ${file}  (${refs.length}건, ${mb}MB)`)

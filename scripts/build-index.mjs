@@ -3,7 +3,7 @@
 //   scripts/build-index.mjs && open index.html
 import { writeFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
-import { REPO, loadRefs, loadVocab, lint, esc, md } from './lib.mjs'
+import { REPO, loadRefs, loadVocab, lint, esc, md, secure } from './lib.mjs'
 import { GROUPS } from '../patterns/patterns.mjs'
 import { WIRE_CSS } from '../patterns/wire-css.mjs'
 import {
@@ -1313,5 +1313,5 @@ calc()
 </body></html>`
 
 const out = join(REPO, 'index.html')
-writeFileSync(out, html)
+writeFileSync(out, secure(html))
 console.log(`✓ ${out}  (스킨 ${SKINS.length}×2모드 · 패턴 ${GROUPS.reduce((n, g) => n + g.variants.length, 0)} · 레퍼런스 ${refs.length} · 화면단가 ${SCREENS.length})`)

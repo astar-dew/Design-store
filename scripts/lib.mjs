@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 
@@ -94,6 +95,32 @@ export function lint(refs, vocab) {
     }
   }
   return problems
+}
+
+/**
+ * 페이지 보안 메타 — 모든 HTML 은 쓰기 직전에 이걸 거친다.
+ * GitHub Pages 는 응답 헤더를 못 건드리므로 CSP 를 <meta> 로 싣는다 (frame-ancestors 는 meta 로 안 됨).
+ * 인라인 <script> 는 빌드마다 내용이 바뀌니 'unsafe-inline' 대신 그 자리에서 sha256 해시를 떠서 허용한다 —
+ * 누가 페이지에 스크립트를 끼워 넣어도 해시가 안 맞아 실행되지 않는다.
+ * 외부로 나가는 요청(fetch·폼 전송)은 쓸 일이 없으니 전부 막는다.
+ */
+export function secure(html) {
+  const hashes = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)]
+    .map(m => `'sha256-${createHash('sha256').update(m[1]).digest('base64')}'`)
+  const csp = [
+    "default-src 'self'",
+    `script-src 'self' ${hashes.join(' ')}`,
+    // 목업이 style 속성을 많이 쓴다 — 스타일은 스크립트를 실행하지 못하므로 inline 허용
+    "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://hangeul.pstatic.net",
+    "font-src 'self' data: https://cdn.jsdelivr.net https://fonts.gstatic.com https://hangeul.pstatic.net",
+    "img-src 'self' data:",
+    "connect-src 'none'", "form-action 'none'", "object-src 'none'", "base-uri 'none'",
+  ].join('; ')
+  // AI 학습용 수집 거부 의사 표시 — 강제력은 없다. 실제 차단은 도메인 + Cloudflare 가 필요
+  const meta = `<meta http-equiv="Content-Security-Policy" content="${csp}">
+<meta name="robots" content="noai, noimageai">`
+  if (!html.includes('<meta charset="utf-8">')) throw new Error('secure(): <meta charset> 가 없다')
+  return html.replace('<meta charset="utf-8">', `<meta charset="utf-8">\n${meta}`)
 }
 
 export const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))

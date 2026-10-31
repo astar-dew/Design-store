@@ -3,7 +3,7 @@
 //   scripts/build-patterns.mjs && open patterns.html
 import { writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { REPO, loadRefs, esc } from './lib.mjs'
+import { REPO, loadRefs, esc, secure } from './lib.mjs'
 import { GROUPS } from '../patterns/patterns.mjs'
 import { WIRE_CSS } from '../patterns/wire-css.mjs'
 import { TOKENS_CSS } from './theme.mjs'
@@ -102,5 +102,5 @@ ${sections}
 </body></html>`
 
 const out = join(REPO, 'patterns.html')
-writeFileSync(out, html)
+writeFileSync(out, secure(html))
 console.log(`✓ ${out}  (${GROUPS.length}개 그룹 / ${total}개 변형, 레퍼런스 ${refs.length}건 연결)`)

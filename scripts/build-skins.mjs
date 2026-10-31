@@ -6,7 +6,7 @@
 // 클라이언트에게 "이 느낌"을 확인시킬 때 정지 화면보다 훨씬 잘 통한다.
 import { writeFileSync, mkdirSync } from 'node:fs'
 import { join, relative } from 'node:path'
-import { REPO, loadRefs, esc, md } from './lib.mjs'
+import { REPO, loadRefs, esc, md, secure } from './lib.mjs'
 import { SKINS, skinCss, fontLinks, modeVars, PREVIEW_FULL_CSS, ICON_SPRITE } from '../patterns/skins.mjs'
 import { LAYOUTS, LAYOUT_FOR, renderLayout, LAYOUTS_CSS, LAYOUTS_MOBILE_CSS, EXTRA_SPRITE } from '../patterns/layouts.mjs'
 import { SKIN_TIER, darkRate } from '../patterns/pricing.mjs'
@@ -458,7 +458,7 @@ document.querySelectorAll('.dl').forEach(a => a.addEventListener('click', e => e
 </script>
 </body></html>`
 
-  writeFileSync(join(REPO, 'skins', `${s.id}.html`), html)
+  writeFileSync(join(REPO, 'skins', `${s.id}.html`), secure(html))
 }
 
 const totalViews = SKINS.reduce((n, sk) =>
