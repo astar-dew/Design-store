@@ -16,7 +16,7 @@ writeFileSync(out, secure(renderPage({
   refs,
   embed: false,
   outDir: REPO,
-})))
+}), ''))
 
 console.log(`✓ ${out}  (${refs.length}건)`)
 if (problems.length) {

@@ -103,8 +103,10 @@ export function lint(refs, vocab) {
  * 인라인 <script> 는 빌드마다 내용이 바뀌니 'unsafe-inline' 대신 그 자리에서 sha256 해시를 떠서 허용한다 —
  * 누가 페이지에 스크립트를 끼워 넣어도 해시가 안 맞아 실행되지 않는다.
  * 외부로 나가는 요청(fetch·폼 전송)은 쓸 일이 없으니 전부 막는다.
+ * root 를 주면 사이트 아이콘도 싣는다 — 페이지 위치에서 저장소 루트까지의 상대 경로 ('' · '../').
+ * 브리프 패킷처럼 파일로 따로 보내는 페이지는 아이콘 경로가 깨지므로 생략한다.
  */
-export function secure(html) {
+export function secure(html, root) {
   const hashes = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)]
     .map(m => `'sha256-${createHash('sha256').update(m[1]).digest('base64')}'`)
   const csp = [
@@ -118,7 +120,11 @@ export function secure(html) {
   ].join('; ')
   // AI 학습용 수집 거부 의사 표시 — 강제력은 없다. 실제 차단은 도메인 + Cloudflare 가 필요
   const meta = `<meta http-equiv="Content-Security-Policy" content="${csp}">
-<meta name="robots" content="noai, noimageai">`
+<meta name="robots" content="noai, noimageai">` + (root == null ? '' : `
+<link rel="icon" href="${root}assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="${root}assets/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="${root}assets/apple-touch-icon.png">
+<link rel="manifest" href="${root}manifest.webmanifest">`)
   if (!html.includes('<meta charset="utf-8">')) throw new Error('secure(): <meta charset> 가 없다')
   return html.replace('<meta charset="utf-8">', `<meta charset="utf-8">\n${meta}`)
 }

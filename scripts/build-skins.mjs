@@ -458,7 +458,7 @@ document.querySelectorAll('.dl').forEach(a => a.addEventListener('click', e => e
 </script>
 </body></html>`
 
-  writeFileSync(join(REPO, 'skins', `${s.id}.html`), secure(html))
+  writeFileSync(join(REPO, 'skins', `${s.id}.html`), secure(html, '../'))
 }
 
 const totalViews = SKINS.reduce((n, sk) =>

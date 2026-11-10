@@ -102,5 +102,5 @@ ${sections}
 </body></html>`
 
 const out = join(REPO, 'patterns.html')
-writeFileSync(out, secure(html))
+writeFileSync(out, secure(html, ''))
 console.log(`✓ ${out}  (${GROUPS.length}개 그룹 / ${total}개 변형, 레퍼런스 ${refs.length}건 연결)`)

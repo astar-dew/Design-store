@@ -1313,5 +1313,5 @@ calc()
 </body></html>`
 
 const out = join(REPO, 'index.html')
-writeFileSync(out, secure(html))
+writeFileSync(out, secure(html, ''))
 console.log(`✓ ${out}  (스킨 ${SKINS.length}×2모드 · 패턴 ${GROUPS.reduce((n, g) => n + g.variants.length, 0)} · 레퍼런스 ${refs.length} · 화면단가 ${SCREENS.length})`)
