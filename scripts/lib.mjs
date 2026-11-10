@@ -97,14 +97,17 @@ export function lint(refs, vocab) {
   return problems
 }
 
+const TAB_ICON = 'data:image/svg+xml;base64,' +
+  readFileSync(join(REPO, 'assets', 'favicon.svg')).toString('base64')
+
 /**
  * 페이지 보안 메타 — 모든 HTML 은 쓰기 직전에 이걸 거친다.
  * GitHub Pages 는 응답 헤더를 못 건드리므로 CSP 를 <meta> 로 싣는다 (frame-ancestors 는 meta 로 안 됨).
  * 인라인 <script> 는 빌드마다 내용이 바뀌니 'unsafe-inline' 대신 그 자리에서 sha256 해시를 떠서 허용한다 —
  * 누가 페이지에 스크립트를 끼워 넣어도 해시가 안 맞아 실행되지 않는다.
  * 외부로 나가는 요청(fetch·폼 전송)은 쓸 일이 없으니 전부 막는다.
- * root 를 주면 사이트 아이콘도 싣는다 — 페이지 위치에서 저장소 루트까지의 상대 경로 ('' · '../').
- * 브리프 패킷처럼 파일로 따로 보내는 페이지는 아이콘 경로가 깨지므로 생략한다.
+ * 탭 아이콘은 data URI 로 페이지에 박는다 — 파일로 열어도(file://), 패킷으로 따로 보내도 뜬다.
+ * root 를 주면 바로가기용 아이콘·매니페스트도 싣는다 — 페이지에서 저장소 루트까지의 상대 경로 ('' · '../').
  */
 export function secure(html, root) {
   const hashes = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)]
@@ -120,9 +123,8 @@ export function secure(html, root) {
   ].join('; ')
   // AI 학습용 수집 거부 의사 표시 — 강제력은 없다. 실제 차단은 도메인 + Cloudflare 가 필요
   const meta = `<meta http-equiv="Content-Security-Policy" content="${csp}">
-<meta name="robots" content="noai, noimageai">` + (root == null ? '' : `
-<link rel="icon" href="${root}assets/favicon.svg" type="image/svg+xml">
-<link rel="icon" href="${root}assets/favicon-32.png" sizes="32x32">
+<meta name="robots" content="noai, noimageai">
+<link rel="icon" href="${TAB_ICON}" type="image/svg+xml">` + (root == null ? '' : `
 <link rel="apple-touch-icon" href="${root}assets/apple-touch-icon.png">
 <link rel="manifest" href="${root}manifest.webmanifest">`)
   if (!html.includes('<meta charset="utf-8">')) throw new Error('secure(): <meta charset> 가 없다')
